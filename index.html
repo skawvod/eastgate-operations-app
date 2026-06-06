@@ -1,0 +1,2206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Property Ops Hub</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;color:#1a1a1a;background:#fff;height:100vh;overflow:hidden;}
+.app{display:flex;height:100vh;}
+.sidebar{width:210px;min-width:210px;background:#f8f8f7;border-right:1px solid #e5e4e0;display:flex;flex-direction:column;overflow-y:auto;}
+.sidebar-logo{padding:12px 14px 10px;font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px;border-bottom:1px solid #e5e4e0;}
+.logo-icon{width:28px;height:28px;background:#7F77DD;border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;flex-shrink:0;}
+.sec-label{padding:12px 14px 3px;font-size:10px;color:#aaa;letter-spacing:.07em;text-transform:uppercase;}
+.nav-btn{display:flex;align-items:center;gap:8px;padding:7px 14px;font-size:13px;color:#555;cursor:pointer;border-left:2px solid transparent;background:none;border-top:none;border-right:none;border-bottom:none;width:100%;text-align:left;font-family:inherit;}
+.nav-btn:hover{background:#f0f0ee;color:#1a1a1a;}
+.nav-btn.active{background:#fff;color:#1a1a1a;font-weight:500;border-left-color:#7F77DD;}
+.nav-icon{font-size:15px;width:18px;text-align:center;}
+.sidebar-user{padding:10px 12px;margin-top:auto;border-top:1px solid #e5e4e0;display:flex;align-items:center;gap:8px;}
+.sidebar-user-name{flex:1;font-size:12px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.sidebar-user-role{font-size:10px;color:#aaa;}
+.btn-signout{padding:3px 8px;border:1px solid #d5d4d0;border-radius:6px;background:#fff;color:#555;font-size:11px;cursor:pointer;font-family:inherit;}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative;}
+.topbar{display:flex;flex-direction:column;border-bottom:1px solid #e5e4e0;background:#fff;flex-shrink:0;}
+.topbar-r1{display:flex;align-items:center;padding:10px 18px;gap:8px;width:100%;}
+.topbar-r2{display:none;} /* shown on mobile via JS */
+.topbar-title{font-size:15px;font-weight:600;flex:0 0 auto;}
+.topbar-right{display:flex;gap:6px;align-items:center;margin-left:auto;}
+.topbar-mobile-right{display:none;margin-left:auto;gap:8px;align-items:center;}
+/* profile avatar button in topbar */
+.topbar-av-btn{width:34px;height:34px;border-radius:50%;border:2px solid #e5e4e0;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit;padding:0;flex-shrink:0;transition:border-color .15s;}
+.topbar-av-btn:hover{border-color:#7F77DD;}
+/* profile popup */
+#profile-popup{display:none;position:fixed;background:#fff;border:1px solid #e5e4e0;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.18);z-index:910;overflow:hidden;min-width:210px;}
+.profile-popup-header{padding:14px 18px 10px;border-bottom:1px solid #f0eeea;}
+.profile-popup-name{font-size:15px;font-weight:700;color:#1a1a1a;}
+.profile-popup-role{font-size:12px;color:#888;margin-top:2px;}
+.profile-popup-btn{display:flex;align-items:center;gap:12px;padding:13px 18px;width:100%;border:none;background:none;cursor:pointer;font-family:inherit;font-size:15px;color:#1a1a1a;text-align:left;}
+.profile-popup-btn:hover{background:#f8f7f5;}
+.profile-popup-btn.danger{color:#ef4444;}
+.btn{display:inline-flex;align-items:center;gap:4px;padding:5px 11px;border:1px solid #d5d4d0;border-radius:6px;background:#fff;color:#1a1a1a;font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap;}
+.btn:hover{background:#f8f8f7;}
+.btn-primary{background:#7F77DD;border-color:#7F77DD;color:#fff;}
+.btn-primary:hover{background:#6b63c9;}
+.btn-sm{padding:3px 8px;font-size:11px;}
+.btn-ghost{border:none;background:none;color:#7F77DD;cursor:pointer;font-size:12px;font-family:inherit;padding:3px 6px;}
+.btn-ghost:hover{text-decoration:underline;}
+.view-toggle{display:flex;border:1px solid #d5d4d0;border-radius:6px;overflow:hidden;}
+.vt-btn{padding:4px 10px;font-size:12px;cursor:pointer;background:#fff;border:none;font-family:inherit;color:#666;}
+.vt-btn.active{background:#7F77DD;color:#fff;}
+.guesty-strip{flex-shrink:0;border-bottom:1px solid #e5e4e0;background:#fafaf9;padding:0 18px;display:none;}
+.guesty-header{display:flex;align-items:center;gap:6px;padding:7px 0 5px;font-size:12px;color:#666;flex-wrap:wrap;}
+.guesty-dot{width:7px;height:7px;border-radius:50%;background:#22c55e;flex-shrink:0;}
+.guesty-dot.loading{background:#eab308;}.guesty-dot.error{background:#ef4444;}
+.guesty-stats{display:flex;gap:16px;}
+.gstat{display:flex;align-items:baseline;gap:4px;}
+.gstat-n{font-size:15px;font-weight:500;color:#1a1a1a;}.gstat-l{font-size:11px;color:#888;}
+.cal-strip{display:flex;gap:5px;padding:5px 0 9px;overflow-x:auto;}
+.cal-day{min-width:78px;border:1px solid #e5e4e0;border-radius:7px;padding:5px 7px;background:#fff;flex-shrink:0;}
+.cal-day.today{border-color:#7F77DD;}
+.cal-dn{font-size:10px;color:#aaa;margin-bottom:1px;}.cal-dd{font-size:13px;font-weight:500;margin-bottom:3px;}
+.cal-day.today .cal-dd{color:#7F77DD;}
+.cal-ev{font-size:10px;padding:2px 4px;border-radius:3px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ev-in{background:#dcfce7;color:#166534;}.ev-out{background:#fee2e2;color:#991b1b;}
+.guesty-error{font-size:11px;color:#999;padding:3px 0 8px;font-style:italic;}
+.content{flex:1;overflow-y:auto;padding:16px 18px;}
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;align-items:center;}
+.filter-chip{padding:4px 12px;border:1px solid #d5d4d0;border-radius:99px;font-size:12px;cursor:pointer;background:#fff;color:#555;font-family:inherit;}
+.filter-chip.active{background:#7F77DD;border-color:#7F77DD;color:#fff;}
+.sel{padding:4px 8px;border:1px solid #d5d4d0;border-radius:6px;font-size:12px;color:#555;background:#fff;font-family:inherit;}
+.board{display:flex;gap:12px;overflow-x:auto;align-items:flex-start;padding-bottom:8px;}
+.kcol{background:#f8f8f7;border-radius:10px;padding:10px;min-width:220px;max-width:260px;flex-shrink:0;}
+.kcol-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.kcol-title{font-size:11px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.05em;display:flex;align-items:center;gap:5px;}
+.sdot{width:7px;height:7px;border-radius:50%;}
+.kcnt{background:#fff;border:1px solid #e5e4e0;border-radius:99px;font-size:10px;color:#888;padding:1px 6px;}
+.card{background:#fff;border:1px solid #e5e4e0;border-radius:8px;padding:10px;margin-bottom:6px;cursor:pointer;transition:border-color .15s,box-shadow .15s;}
+.card:hover{border-color:#c0bfbb;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+.card-title{font-size:13px;font-weight:500;line-height:1.4;margin-bottom:6px;}
+.card-meta{display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin-top:5px;}
+.tag{font-size:10px;padding:2px 7px;border-radius:99px;font-weight:500;}
+.tag-prop{background:#eeecff;color:#534AB7;}.tag-blue{background:#dbeafe;color:#1e40af;}
+.tag-green{background:#dcfce7;color:#166534;}.tag-yellow{background:#fef3c7;color:#92400e;}
+.tag-red{background:#fee2e2;color:#991b1b;}.tag-gray{background:#f1f5f9;color:#475569;}
+.tag-orange{background:#ffedd5;color:#9a3412;}.tag-purple{background:#f3e8ff;color:#7e22ce;}
+.due{font-size:10px;color:#999;}.due.overdue{color:#dc2626;}
+.avatar{width:20px;height:20px;border-radius:50%;font-size:9px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;}
+.av-a{background:#e0e7ff;color:#3730a3;}.av-b{background:#dcfce7;color:#166534;}.av-c{background:#fef3c7;color:#92400e;}.av-d{background:#fce7f3;color:#9d174d;}.av-e{background:#dbeafe;color:#1e40af;}
+.list-view{display:flex;flex-direction:column;gap:0;}
+.list-item{background:#fff;border:1px solid #e5e4e0;border-radius:8px;padding:10px 12px;margin-bottom:5px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:border-color .15s;}
+.list-item:hover{border-color:#c0bfbb;}
+.list-item-main{flex:1;min-width:0;}
+.list-item-title{font-size:13px;font-weight:500;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.list-item-meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+.list-item-right{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.detail-panel{position:absolute;top:0;right:0;width:440px;height:100%;background:#fff;border-left:1px solid #e5e4e0;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .2s ease;z-index:50;overflow:hidden;}
+.detail-panel.open{transform:translateX(0);}
+.detail-head{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid #e5e4e0;flex-shrink:0;}
+.detail-close{background:none;border:none;font-size:18px;cursor:pointer;color:#999;padding:0 4px;line-height:1;}
+.detail-head-title{flex:1;font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.detail-body{flex:1;overflow-y:auto;padding:14px;}
+.detail-section{margin-bottom:16px;}
+.detail-section-label{font-size:10px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;}
+.detail-field{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid #f5f5f4;}
+.detail-field:last-child{border-bottom:none;}
+.df-label{font-size:11px;color:#999;width:110px;flex-shrink:0;padding-top:2px;}
+.df-val{font-size:13px;color:#1a1a1a;flex:1;}
+.df-val select{width:100%;border:none;background:none;font-size:13px;font-family:inherit;color:#1a1a1a;cursor:pointer;outline:none;}
+.df-val select:hover{background:#f8f8f7;border-radius:4px;}
+.linked-list{display:flex;flex-direction:column;gap:4px;}
+.linked-item{display:flex;align-items:center;gap:6px;padding:5px 8px;background:#f8f8f7;border-radius:6px;font-size:12px;}
+.linked-item-name{flex:1;}
+.comment-list{display:flex;flex-direction:column;gap:8px;margin-bottom:10px;}
+.comment{background:#f8f8f7;border-radius:8px;padding:8px 10px;}
+.comment-author{font-size:11px;font-weight:600;color:#555;margin-bottom:3px;}
+.comment-text{font-size:13px;line-height:1.4;}
+.comment-input-wrap{display:flex;gap:6px;}
+.comment-input{flex:1;padding:7px 10px;border:1px solid #d5d4d0;border-radius:8px;font-size:13px;font-family:inherit;resize:none;}
+.comment-input:focus{outline:2px solid #7F77DD;border-color:transparent;}
+.empty{text-align:center;padding:40px 20px;color:#aaa;}
+.empty-icon{font-size:28px;margin-bottom:8px;}
+.loading-msg{display:flex;align-items:center;justify-content:center;height:160px;color:#aaa;font-size:13px;}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;z-index:200;}
+.modal{background:#fff;border-radius:12px;padding:20px;width:480px;max-height:88vh;overflow-y:auto;}
+.modal-title{font-size:15px;font-weight:600;margin-bottom:16px;}
+.frow{margin-bottom:11px;}
+.flabel{font-size:11px;color:#666;margin-bottom:3px;display:block;font-weight:500;}
+.finput{width:100%;padding:6px 9px;border:1px solid #d5d4d0;border-radius:6px;font-size:13px;color:#1a1a1a;font-family:inherit;}
+.finput:focus{outline:2px solid #7F77DD;border-color:transparent;}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.mactions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px;}
+.tab-bar{display:flex;gap:0;border-bottom:2px solid #e5e4e0;margin-bottom:14px;}
+.tab-btn{padding:8px 16px;font-size:13px;cursor:pointer;background:none;border:none;font-family:inherit;color:#666;border-bottom:2px solid transparent;margin-bottom:-2px;}
+.tab-btn.active{color:#7F77DD;border-bottom-color:#7F77DD;font-weight:500;}
+.pay-dash{display:flex;flex-direction:column;gap:10px;}
+.pay-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:6px;}
+.pay-stat{background:#f8f8f7;border-radius:8px;padding:10px 14px;}
+.pay-stat-n{font-size:20px;font-weight:600;color:#1a1a1a;}.pay-stat-l{font-size:11px;color:#888;margin-top:2px;}
+.pay-cleaner-row{background:#fff;border:1px solid #e5e4e0;border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:10px;}
+.pay-cleaner-name{flex:1;font-size:13px;font-weight:500;}
+.pay-cleaner-amt{font-size:14px;font-weight:600;color:#ef4444;}
+.pay-cleaner-cnt{font-size:11px;color:#888;}
+.section-group{margin-bottom:18px;}
+.section-group-title{font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid #f0f0ee;}
+.toast{position:fixed;bottom:20px;right:20px;background:#1a1a1a;color:#fff;padding:10px 16px;border-radius:8px;font-size:13px;z-index:300;opacity:0;transition:opacity .3s;pointer-events:none;}
+.toast.show{opacity:1;}
+/* Login */
+.login-screen{position:fixed;inset:0;background:#fff;z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;overflow-y:auto;}
+.login-logo{width:52px;height:52px;background:#7F77DD;border-radius:15px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:26px;margin-bottom:14px;}
+.login-title{font-size:22px;font-weight:600;margin-bottom:5px;}
+.login-sub{font-size:14px;color:#888;margin-bottom:28px;text-align:center;}
+.login-users{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:520px;}
+.login-user-card{display:flex;flex-direction:column;align-items:center;gap:7px;padding:14px 18px;border:2px solid #e5e4e0;border-radius:12px;cursor:pointer;background:#fff;font-family:inherit;min-width:96px;transition:border-color .15s,background .15s;}
+.login-user-card:hover,.login-user-card.selected{border-color:#7F77DD;background:#faf9ff;}
+.login-avatar-lg{width:44px;height:44px;border-radius:50%;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+.lav-purple{background:#e0e7ff;color:#3730a3;}.lav-blue{background:#dbeafe;color:#1e40af;}.lav-green{background:#dcfce7;color:#166534;}.lav-orange{background:#ffedd5;color:#9a3412;}.lav-pink{background:#fce7f3;color:#9d174d;}
+.login-uname{font-size:13px;font-weight:500;}.login-urole{font-size:10px;color:#aaa;}
+.login-pin-wrap{margin-top:24px;display:flex;flex-direction:column;align-items:center;gap:10px;width:100%;max-width:240px;}
+.login-pin-input{font-size:22px;letter-spacing:8px;text-align:center;width:100%;padding:10px 14px;border:2px solid #d5d4d0;border-radius:10px;font-family:monospace;outline:none;}
+.login-pin-input:focus{border-color:#7F77DD;}
+.login-pin-error{color:#dc2626;font-size:12px;min-height:16px;}
+.login-sign-btn{width:100%;padding:11px;background:#7F77DD;border:none;border-radius:9px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;}
+.login-sign-btn:hover{background:#6b63c9;}
+.login-sign-btn:disabled{opacity:.5;cursor:default;}
+.login-back{font-size:12px;color:#aaa;cursor:pointer;border:none;background:none;font-family:inherit;text-decoration:underline;}
+/* Cleaner view */
+.cleaner-view{height:100vh;display:flex;flex-direction:column;overflow:hidden;background:#f4f4f3;}
+.cleaner-header{display:flex;align-items:center;padding:12px 16px;background:#fff;border-bottom:1px solid #e5e4e0;gap:10px;}
+.cleaner-logo{width:32px;height:32px;background:#7F77DD;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;}
+.cleaner-header-title{font-size:15px;font-weight:600;flex:1;}
+.cleaner-user-av{width:30px;height:30px;border-radius:50%;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+.cleaner-signout{padding:4px 10px;border:1px solid #d5d4d0;border-radius:6px;background:#fff;font-size:11px;font-family:inherit;cursor:pointer;color:#555;}
+.cleaner-content{flex:1;overflow-y:auto;padding:14px;}
+.cleaner-section{margin-bottom:20px;}
+.cleaner-sec-head{display:flex;align-items:center;gap:7px;margin-bottom:9px;}
+.cleaner-sec-title{font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.07em;}
+.cleaner-sec-badge{background:#7F77DD;color:#fff;font-size:10px;padding:1px 8px;border-radius:99px;font-weight:700;}
+.cleaner-sec-badge.urgent{background:#ef4444;}
+.job-card{background:#fff;border:1px solid #e5e4e0;border-radius:11px;padding:14px;margin-bottom:9px;}
+.job-card.done-card{opacity:.55;}
+.job-card-prop{font-size:11px;color:#7F77DD;font-weight:600;margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em;}
+.job-card-title{font-size:16px;font-weight:500;line-height:1.35;margin-bottom:8px;}
+.job-card-meta{display:flex;align-items:center;gap:7px;margin-bottom:11px;flex-wrap:wrap;}
+.job-card-actions{display:flex;gap:7px;}
+.job-done-btn{flex:1;padding:10px;border:none;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;background:#22c55e;color:#fff;}
+.job-done-btn.undo-btn{background:#f1f5f9;color:#555;}
+.job-note-btn{padding:10px 12px;border:1px solid #d5d4d0;border-radius:9px;background:#fff;font-size:13px;cursor:pointer;font-family:inherit;color:#555;}
+.job-note-area{margin-top:8px;display:flex;gap:7px;}
+.job-note-input{flex:1;padding:8px 10px;border:1px solid #d5d4d0;border-radius:8px;font-size:13px;font-family:inherit;resize:none;height:64px;}
+.job-note-save{padding:0 12px;border:none;border-radius:8px;background:#7F77DD;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;}
+/* ── Language toggle ────────────────────────────────── */
+.lang-toggle{padding:4px 10px;border:1px solid #d5d4d0;border-radius:6px;background:#fff;color:#555;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;}
+.lang-toggle:hover{background:#f8f8f7;}
+.login-lang{position:absolute;top:14px;right:14px;}
+/* ── Mobile nav: hidden by default ─────────────────────── */
+/* ── Bottom nav ─────────────────────────────────────────── */
+.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e5e4e0;z-index:200;padding-bottom:env(safe-area-inset-bottom);}
+.mobile-nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 2px 5px;font-size:14px;color:#aaa;cursor:pointer;border:none;background:none;font-family:inherit;gap:3px;transition:color .15s;}
+.mobile-nav-btn .mnav-pill{display:flex;align-items:center;justify-content:center;width:54px;height:32px;border-radius:16px;font-size:22px;transition:background .15s;}
+.mobile-nav-btn.active .mnav-pill{background:#7F77DD;}
+.mobile-nav-btn.active{color:#7F77DD;font-weight:700;}
+/* ── Language picker popup ──────────────────────────────── */
+.lang-globe{width:38px;height:38px;border-radius:50%;border:1px solid #e5e4e0;background:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.08);padding:0;transition:box-shadow .15s;}
+.lang-globe:hover{box-shadow:0 2px 8px rgba(0,0,0,.15);}
+#lang-picker-popup{display:none;position:fixed;background:#fff;border:1px solid #e5e4e0;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.15);z-index:900;overflow:hidden;min-width:180px;}
+.lang-opt{display:flex;align-items:center;gap:12px;padding:14px 18px;font-size:16px;width:100%;border:none;background:none;cursor:pointer;font-family:inherit;text-align:left;color:#1a1a1a;}
+.lang-opt:hover{background:#f8f8f7;}
+.lang-opt.active-lang{background:#eeecff;color:#7F77DD;font-weight:600;}
+.lang-opt .lang-check{margin-left:auto;color:#7F77DD;font-size:14px;}
+/* ── Mobile-only / desktop-only helpers ─────────────────── */
+.mobile-only{display:none!important;}
+@media(max-width:700px){
+  .mobile-only{display:inline-flex!important;}
+  .desktop-only{display:none!important;}
+  /* layout */
+  body{overflow:auto!important;font-size:18px!important;}
+  .app{flex-direction:column!important;height:auto!important;min-height:100vh!important;}
+  .sidebar{display:none!important;}
+  .main{height:auto!important;padding-bottom:80px!important;}
+  /* topbar 2-row mobile layout */
+  .topbar-r1{padding:10px 14px!important;}
+  .topbar-title{font-size:18px!important;font-weight:700!important;}
+  .topbar-right{display:none!important;}
+  .topbar-mobile-right{display:flex!important;}
+  /* row2 styling (display toggled by JS) */
+  .topbar-r2{align-items:center;padding:6px 14px 8px;gap:8px;border-top:1px solid #f0eeea;}
+  /* buttons */
+  .btn{padding:9px 14px!important;font-size:15px!important;}
+  .btn-sm{padding:7px 11px!important;font-size:13px!important;}
+  .btn-primary{padding:9px 16px!important;font-size:15px!important;}
+  /* content */
+  .content{padding:14px!important;}
+  .card-title{font-size:16px!important;}
+  .list-item-title{font-size:16px!important;}
+  .list-item-meta{font-size:14px!important;}
+  .tag{font-size:13px!important;padding:4px 10px!important;}
+  .filter-chip{font-size:15px!important;padding:8px 16px!important;}
+  .sel{font-size:15px!important;padding:8px 10px!important;}
+  .tab-btn{font-size:15px!important;padding:10px 18px!important;}
+  /* bottom nav — text must be big */
+  .mobile-nav{display:flex!important;}
+  .mobile-nav-btn{font-size:15px!important;padding:6px 2px 7px!important;}
+  .mobile-nav-btn .mnav-pill{font-size:24px!important;width:56px!important;height:34px!important;}
+  /* board */
+  .board{flex-direction:column!important;overflow-x:unset!important;}
+  .kcol{min-width:unset!important;max-width:unset!important;width:100%!important;}
+  /* detail panel */
+  .detail-panel{width:100%!important;border-left:none!important;border-top:1px solid #e5e4e0!important;top:auto!important;bottom:0!important;height:85vh!important;transform:translateY(100%)!important;}
+  .detail-panel.open{transform:translateY(0)!important;}
+  /* login */
+  .login-screen{padding:20px 16px!important;}
+  .login-pin-input{font-size:22px!important;letter-spacing:6px!important;width:170px!important;}
+  .login-sign-btn{font-size:16px!important;padding:13px!important;}
+  /* cleaner */
+  .cleaner-header{padding:12px 16px!important;}
+  .cleaner-content{padding:14px!important;}
+  .cleaner-header-title{font-size:18px!important;}
+  .cleaner-signout{font-size:14px!important;padding:7px 13px!important;}
+  /* section groups & detail */
+  .section-group-title{font-size:14px!important;}
+  .df-label{font-size:14px!important;}
+  .df-val{font-size:15px!important;}
+  .detail-head-title{font-size:17px!important;}
+  .detail-section-label{font-size:13px!important;}
+  /* checklist */
+  .checklist-item-q{font-size:15px!important;}
+  .cl-yn{width:42px!important;height:34px!important;font-size:16px!important;}
+  .checklist-sec-title{font-size:20px!important;}
+}
+/* ── RTL overrides ──────────────────────────────────── */
+html[dir="rtl"] body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Arial Hebrew',sans-serif;direction:rtl;}
+html[dir="rtl"] .app{flex-direction:row-reverse;}
+html[dir="rtl"] .sidebar{border-right:none;border-left:1px solid #e5e4e0;}
+html[dir="rtl"] .nav-btn{border-left:none;border-right:2px solid transparent;text-align:right;}
+html[dir="rtl"] .nav-btn.active{border-right-color:#7F77DD;}
+html[dir="rtl"] .sidebar-logo{flex-direction:row-reverse;}
+html[dir="rtl"] .topbar{flex-direction:row-reverse;}
+html[dir="rtl"] .topbar-right{flex-direction:row-reverse;}
+html[dir="rtl"] .topbar-left{flex-direction:row-reverse;}
+html[dir="rtl"] .detail-panel{right:auto;left:0;transform:translateX(-100%);border-left:none;border-right:1px solid #e5e4e0;direction:rtl;}
+html[dir="rtl"] .detail-panel.open{transform:translateX(0);}
+html[dir="rtl"] .detail-head{flex-direction:row-reverse;}
+html[dir="rtl"] .detail-field{flex-direction:row-reverse;}
+html[dir="rtl"] .df-label{text-align:right;}
+html[dir="rtl"] .lang-toggle{left:auto;right:12px;}
+html[dir="rtl"] .filters{flex-direction:row-reverse;}
+html[dir="rtl"] .card-meta{flex-direction:row-reverse;}
+html[dir="rtl"] .card-title{text-align:right;}
+html[dir="rtl"] .cleaner-header{flex-direction:row-reverse;}
+html[dir="rtl"] .sidebar-user{flex-direction:row-reverse;}
+html[dir="rtl"] .list-item{flex-direction:row-reverse;}
+html[dir="rtl"] .list-item-meta{flex-direction:row-reverse;}
+html[dir="rtl"] .list-item-title{text-align:right;}
+html[dir="rtl"] .comment{direction:rtl;text-align:right;}
+html[dir="rtl"] .modal{direction:rtl;text-align:right;}
+html[dir="rtl"] .mactions{flex-direction:row-reverse;}
+html[dir="rtl"] .tab-bar{flex-direction:row-reverse;}
+html[dir="rtl"] .pay-cleaner-row{flex-direction:row-reverse;}
+html[dir="rtl"] .section-group-title{text-align:right;}
+html[dir="rtl"] .login-screen{direction:rtl;}
+html[dir="rtl"] .guesty-header{flex-direction:row-reverse;}
+html[dir="rtl"] .guesty-stats{flex-direction:row-reverse;}
+/* ── Property status board ──────────────────────────────── */
+.prop-board{display:flex;gap:10px;overflow-x:auto;padding-bottom:8px;align-items:flex-start;}
+.prop-col{background:#f8f8f7;border-radius:10px;padding:10px;min-width:190px;flex-shrink:0;}
+.prop-col-head{border-top:3px solid #ccc;border-radius:3px 3px 0 0;display:flex;align-items:center;justify-content:space-between;padding:8px 10px 8px 10px;margin:-10px -10px 8px;}
+.prop-col-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;display:flex;align-items:center;gap:5px;}
+.prop-item{background:#fff;border:1px solid #e5e4e0;border-radius:8px;padding:10px;margin-bottom:6px;cursor:pointer;transition:border-color .15s,box-shadow .15s;}
+.prop-item:hover{border-color:#c0bfbb;box-shadow:0 1px 4px rgba(0,0,0,.07);}
+.prop-item-name{font-size:13px;font-weight:500;}
+/* ── Guesty panel (replaces guesty-strip) ───────────────── */
+.guesty-panel{flex-shrink:0;border-bottom:1px solid #e5e4e0;background:#fafaf9;display:none;}
+.guesty-panel-tabs{display:flex;border-bottom:1px solid #e5e4e0;padding:0 14px;}
+.guesty-panel-tab{padding:7px 12px;font-size:12px;cursor:pointer;background:none;border:none;font-family:inherit;color:#888;border-bottom:2px solid transparent;margin-bottom:-1px;}
+.guesty-panel-tab.active{color:#7F77DD;border-bottom-color:#7F77DD;font-weight:500;}
+.guesty-panel-content{padding:10px 18px 12px;}
+.guesty-panel-stats{display:flex;align-items:center;gap:6px;padding:6px 0 3px;font-size:12px;color:#666;flex-wrap:wrap;}
+/* ── Cleaner view redesign ──────────────────────────────── */
+.cv-tab-bar{display:flex;border-bottom:2px solid #e5e4e0;background:#fff;flex-shrink:0;}
+.cv-tab-btn{flex:1;padding:12px;font-size:13px;cursor:pointer;background:none;border:none;font-family:inherit;color:#888;border-bottom:2px solid transparent;margin-bottom:-2px;font-weight:500;}
+.cv-tab-btn.active{color:#7F77DD;border-bottom-color:#7F77DD;}
+.cv-summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+.cv-stat{background:#fff;border:1px solid #e5e4e0;border-radius:12px;padding:14px;text-align:center;}
+.cv-stat-n{font-size:20px;font-weight:700;color:#1a1a1a;margin-bottom:2px;}
+.cv-stat-l{font-size:11px;color:#888;}
+.cv-stat.owed{border-color:#ef4444;background:#fff5f5;}
+.cv-stat.owed .cv-stat-n{color:#ef4444;}
+.cv-stat.earned{border-color:#22c55e;background:#f0fdf4;}
+.cv-stat.earned .cv-stat-n{color:#166534;}
+.earn-chart{margin:0 0 16px;}
+.earn-bars{display:flex;align-items:flex-end;gap:4px;height:80px;}
+.earn-bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;}
+.earn-bar-bg{width:100%;background:#e5e4e0;border-radius:3px 3px 0 0;position:relative;}
+.earn-bar-fill{position:absolute;bottom:0;width:100%;background:#22c55e;border-radius:3px 3px 0 0;}
+.earn-bar-lbl{font-size:8px;color:#bbb;text-align:center;white-space:nowrap;}
+.job-accept-btn{flex:1;padding:10px;border:none;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;background:#7F77DD;color:#fff;}
+.job-accept-btn:hover{background:#6b63c9;}
+/* ── Checklist modal (TypeForm-style) ──────────────────── */
+.checklist-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:400;}
+.checklist-modal{background:#fff;border-radius:16px;width:min(520px,96vw);max-height:92vh;overflow:hidden;display:flex;flex-direction:column;}
+.checklist-progress-bar{height:4px;background:#e5e4e0;flex-shrink:0;}
+.checklist-progress-fill{height:4px;background:#7F77DD;transition:width .3s ease;}
+.checklist-head{padding:16px 20px 0;flex-shrink:0;}
+.checklist-sec-label{font-size:11px;color:#7F77DD;font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;}
+.checklist-sec-title{font-size:18px;font-weight:700;color:#1a1a1a;margin-bottom:4px;}
+.checklist-sec-count{font-size:12px;color:#aaa;margin-bottom:8px;}
+.checklist-body{padding:12px 20px 12px;flex:1;overflow-y:auto;}
+.checklist-item{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid #f5f5f4;}
+.checklist-item:last-child{border-bottom:none;}
+.checklist-item-left{flex:1;min-width:0;}
+.checklist-item-q{font-size:13px;font-weight:500;color:#1a1a1a;line-height:1.4;}
+.checklist-item-hint{font-size:11px;color:#aaa;margin-top:2px;font-style:italic;}
+.checklist-item-note{margin-top:6px;}
+.checklist-item-note textarea{width:100%;padding:6px 9px;border:1px solid #e5e4e0;border-radius:7px;font-size:12px;font-family:inherit;resize:none;height:52px;outline:none;color:#555;}
+.checklist-item-note textarea:focus{border-color:#7F77DD;}
+.checklist-yn{display:flex;gap:5px;flex-shrink:0;margin-top:1px;}
+.cl-yn{width:36px;height:28px;border-radius:7px;border:1.5px solid #d5d4d0;background:#fff;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:all .12s;font-family:inherit;}
+.cl-yn:hover{border-color:#aaa;}
+.cl-yn.yes.active{background:#dcfce7;border-color:#16a34a;color:#166534;}
+.cl-yn.no.active{background:#fee2e2;border-color:#dc2626;color:#991b1b;}
+.checklist-foot{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-top:1px solid #f0f0ee;flex-shrink:0;gap:8px;}
+.checklist-warn{font-size:11px;color:#dc2626;flex:1;}
+/* ── Login form (no name cards) ────────────────────────── */
+.login-form-wrap{width:100%;max-width:310px;display:flex;flex-direction:column;gap:12px;margin-top:8px;}
+.login-text-input{width:100%;padding:9px 12px;border:2px solid #d5d4d0;border-radius:10px;font-size:14px;font-family:inherit;color:#1a1a1a;outline:none;background:#fff;}
+.login-text-input:focus{border-color:#7F77DD;}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen" class="login-screen" style="display:none;position:relative;">
+  <button class="lang-globe login-lang" onclick="openLangPicker(this)" title="Language">🌍</button>
+  <div class="login-logo">🏢</div>
+  <div class="login-title" data-i18n="Property Ops">Property Ops</div>
+  <div class="login-sub" data-i18n="Sign in to continue">Sign in to continue</div>
+  <div class="login-form-wrap">
+    <div>
+      <label style="font-size:12px;color:#666;font-weight:500;display:block;margin-bottom:4px;" data-i18n="Username">Username</label>
+      <input class="login-text-input" id="ls-username" type="text" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" placeholder="Your name" onkeydown="if(event.key==='Enter')document.getElementById('ls-pin-input').focus()">
+    </div>
+    <div>
+      <label style="font-size:12px;color:#666;font-weight:500;display:block;margin-bottom:4px;" data-i18n="PIN">PIN</label>
+      <input class="login-pin-input" style="width:100%;font-size:20px;letter-spacing:8px;text-align:center;" type="password" inputmode="numeric" maxlength="8" id="ls-pin-input" placeholder="••••" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div class="login-pin-error" id="ls-pin-error"></div>
+    <button class="login-sign-btn" onclick="doLogin()" data-i18n="Sign in">Sign in</button>
+  </div>
+</div>
+
+<!-- CLEANER VIEW -->
+<div id="cleaner-view" style="display:none;flex-direction:column;overflow:hidden;background:#f4f4f3;height:100vh;">
+  <div class="cleaner-header">
+    <div class="cleaner-logo">🏢</div>
+    <div class="cleaner-header-title" data-i18n="Property Ops">Property Ops</div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <button class="lang-globe" onclick="openLangPicker(this)" title="Language">🌍</button>
+      <div id="cv-av" class="cleaner-user-av lav-green" style="width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;"></div>
+      <span id="cv-name" style="font-size:12px;font-weight:500;"></span>
+      <button class="cleaner-signout" onclick="openChangePIN()" title="Change PIN">🔑 PIN</button>
+      <button class="cleaner-signout" onclick="logout()" data-i18n="Sign out">Sign out</button>
+    </div>
+  </div>
+  <div class="cv-tab-bar">
+    <button id="cv-tab-dash" class="cv-tab-btn active" onclick="setCleanerTab('dash')" data-i18n="My Dashboard">My Dashboard</button>
+    <button id="cv-tab-jobs" class="cv-tab-btn" onclick="setCleanerTab('jobs')" data-i18n="Cleaning Jobs">Cleaning Jobs</button>
+  </div>
+  <div class="cleaner-content" id="cv-content" style="flex:1;overflow-y:auto;padding:14px;">
+    <div style="text-align:center;padding:40px;color:#aaa;">Loading…</div>
+  </div>
+</div>
+
+<!-- MOBILE BOTTOM NAV (main app only) -->
+<nav class="mobile-nav" id="mobile-nav">
+  <button class="mobile-nav-btn" id="mnav-mydash" onclick="setSection('mydash')"><span class="mnav-pill">📊</span><span data-i18n="Dashboard">Dashboard</span></button>
+  <button class="mobile-nav-btn" id="mnav-notifications" onclick="setSection('notifications')"><span class="mnav-pill">🔔</span><span data-i18n="Notifications">Notifs</span></button>
+  <button class="mobile-nav-btn" id="mnav-tasks" onclick="setSection('tasks')"><span class="mnav-pill">📋</span><span data-i18n="Tasks">Tasks</span></button>
+  <button class="mobile-nav-btn" id="mnav-workorders" onclick="setSection('workorders')"><span class="mnav-pill">🔧</span><span data-i18n="Work Orders">Work</span></button>
+  <button class="mobile-nav-btn" id="mnav-cleaning" onclick="setSection('cleaning')"><span class="mnav-pill">🧹</span><span data-i18n="Cleaning">Cleaning</span></button>
+</nav>
+
+<!-- MAIN APP -->
+<div class="app" id="main-app" style="display:none;">
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="logo-icon">🏢</div><span data-i18n="Property Ops">Property Ops</span></div>
+    <div class="sec-label" data-i18n="Workspace">Workspace</div>
+    <button class="nav-btn" id="nav-mydash" onclick="setSection('mydash')"><span class="nav-icon">📊</span><span data-i18n="My Dashboard">My Dashboard</span></button>
+    <button class="nav-btn" id="nav-notifications" onclick="setSection('notifications')"><span class="nav-icon">🔔</span><span id="notif-badge-sb" data-i18n="Notifications">Notifications</span></button>
+    <button class="nav-btn" id="nav-tasks" onclick="setSection('tasks')"><span class="nav-icon">📋</span><span data-i18n="Tasks">Tasks</span></button>
+    <button class="nav-btn" id="nav-workorders" onclick="setSection('workorders')"><span class="nav-icon">🔧</span><span data-i18n="Work Orders">Work Orders</span></button>
+    <button class="nav-btn" id="nav-cleaning" onclick="setSection('cleaning')"><span class="nav-icon">🧹</span><span data-i18n="Cleaning">Cleaning</span></button>
+    <div class="sidebar-user">
+      <div id="sb-av" class="avatar av-a" style="width:26px;height:26px;font-size:10px;"></div>
+      <div style="flex:1;min-width:0;"><div class="sidebar-user-name" id="sb-name"></div><div class="sidebar-user-role" id="sb-role"></div></div>
+      <button class="btn-signout" onclick="openChangePIN()" title="Change PIN" style="margin-right:3px;">🔑</button>
+      <button class="btn-signout" onclick="logout()" data-i18n="Sign out">Sign out</button>
+    </div>
+  </aside>
+  <main class="main" id="main-content">
+    <div class="topbar">
+      <!-- Row 1: always visible -->
+      <div class="topbar-r1">
+        <div class="topbar-title" id="topbar-title">Tasks</div>
+        <!-- Desktop right: refresh + view toggle + new + lang -->
+        <div class="topbar-right">
+          <button class="btn" onclick="loadAll()" data-i18n="↻ Refresh">↻ Refresh</button>
+          <div class="view-toggle" id="view-toggle-d">
+            <button class="vt-btn active" id="vt-board" onclick="setView('board')" data-i18n="⊞ Board">⊞ Board</button>
+            <button class="vt-btn" id="vt-list" onclick="setView('list')" data-i18n="☰ List">☰ List</button>
+          </div>
+          <button class="btn btn-primary" id="new-btn" onclick="openNewModal()">+ New</button>
+          <button class="lang-globe" onclick="openLangPicker(this)" title="Language">🌍</button>
+        </div>
+        <!-- Mobile right: lang + profile avatar -->
+        <div class="topbar-mobile-right">
+          <button class="lang-globe" onclick="openLangPicker(this)" title="Language">🌍</button>
+          <button class="topbar-av-btn lav-purple" id="topbar-av" onclick="openProfileMenu(this)" title="Account">?</button>
+        </div>
+      </div>
+      <!-- Row 2: mobile only — view toggle + new button -->
+      <div class="topbar-r2" id="topbar-r2">
+        <div class="view-toggle" id="view-toggle">
+          <button class="vt-btn" id="vt-board-m" onclick="setView('board')" data-i18n="⊞ Board">⊞ Board</button>
+          <button class="vt-btn" id="vt-list-m" onclick="setView('list')" data-i18n="☰ List">☰ List</button>
+        </div>
+        <button class="btn btn-primary" id="new-btn-m" style="margin-left:auto;" onclick="openNewModal()">+ New</button>
+      </div>
+    </div>
+    <div class="guesty-panel" id="guesty-panel">
+      <div class="guesty-panel-tabs">
+        <button class="guesty-panel-tab active" id="gpt-status" onclick="setGuestyPanelTab('status')" data-i18n="Property Status">🏠 Property Status</button>
+        <button class="guesty-panel-tab" id="gpt-calendar" onclick="setGuestyPanelTab('calendar')" data-i18n="Guesty Calendar">📅 Guesty Calendar</button>
+      </div>
+      <div class="guesty-panel-content" id="guesty-panel-content"></div>
+    </div>
+    <div class="content" id="main-section"><div class="loading-msg">Loading…</div></div>
+    <div class="detail-panel" id="detail-panel">
+      <div class="detail-head">
+        <button class="detail-close" onclick="closeDetail()">✕</button>
+        <div class="detail-head-title" id="dp-title"></div>
+        <a id="dp-notion-link" href="#" target="_blank" style="font-size:11px;color:#7F77DD;text-decoration:none;flex-shrink:0;">Open in Notion ↗</a>
+      </div>
+      <div class="detail-body" id="dp-body"></div>
+    </div>
+  </main>
+</div>
+<div class="overlay" id="modal-overlay" style="display:none;"><div class="modal" id="modal-box"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ── Notion API client ──────────────────────────────────── */
+async function notion(params) {
+  const res = await fetch('/.netlify/functions/notion', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(params),
+  });
+  if (!res.ok) throw new Error(`API error ${res.status}`);
+  const data = await res.json();
+  if (data.error) throw new Error(data.error);
+  return data;
+}
+async function queryDB(dbId) {
+  const res = await notion({action:'queryDB', dbId});
+  return res.results || [];
+}
+async function createPage(dbId, properties) {
+  return notion({action:'createPage', dbId, properties});
+}
+async function updatePage(id, properties) {
+  return notion({action:'updatePage', id, properties});
+}
+async function getComments(pageId) {
+  return notion({action:'getComments', pageId});
+}
+async function addComment(pageId, text) {
+  return notion({action:'createComment', pageId, text});
+}
+
+/* ── Notion property helpers ────────────────────────────── */
+function rp(props, name) {
+  const p = props?.[name]; if (!p) return null;
+  switch(p.type) {
+    case 'title':        return p.title?.map(t=>t.plain_text).join('') || '';
+    case 'rich_text':    return p.rich_text?.map(t=>t.plain_text).join('') || '';
+    case 'select':       return p.select?.name || '';
+    case 'multi_select': return p.multi_select?.map(s=>s.name).join(', ') || '';
+    case 'number':       return p.number;
+    case 'date':         return p.date?.start || '';
+    case 'checkbox':     return p.checkbox;
+    case 'email':        return p.email || '';
+    case 'phone_number': return p.phone_number || '';
+    case 'url':          return p.url || '';
+    default:             return null;
+  }
+}
+// Build Notion property for API write
+function wp(type, value) {
+  if (value === null || value === undefined || value === '') return null;
+  switch(type) {
+    case 'title':    return {title:[{text:{content:String(value)}}]};
+    case 'text':     return {rich_text:[{text:{content:String(value)}}]};
+    case 'select':   return {select:{name:String(value)}};
+    case 'number':   return {number:typeof value==='number'?value:parseFloat(value)||null};
+    case 'date':     return {date:{start:String(value)}};
+    case 'checkbox': return {checkbox:Boolean(value)};
+    default:         return {rich_text:[{text:{content:String(value)}}]};
+  }
+}
+function safeJSON(v){try{return v&&v!=='null'?JSON.parse(v):null;}catch{return null;}}
+const h=v=>String(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const aa=v=>String(v||'').replace(/\\/g,'\\\\').replace(/"/g,'&quot;').replace(/'/g,"\\'");
+
+/* ── DB IDs ─────────────────────────────────────────────── */
+const DBID_USERS      ='9c2b12a9-dd63-4d67-85b8-ba7d56ef8b2a';
+const DBID_PROP       ='a117b086-b284-4de9-92c0-65ab14899c97';
+const DBID_TASKS      ='a36736fe-17fc-45b7-9ee8-fd9cb56d2b66';
+const DBID_WO         ='7c2d48cb-989c-4812-b154-da8a086c77e6';
+const DBID_CLEANING   ='5607a7f0-ba64-4bc5-afaf-2bf1efda8949';
+const DBID_PAYMENTS   ='d1fffe59-dccf-4a64-a6fd-2fc977b01f51';
+const DBID_CLEANERS   ='2410b06c-0c14-463b-864f-4dc145d00526';
+const DBID_CONTRS     ='e11b4371-88b6-4bc6-a241-d073c96e5108';
+// Checklist data is stored directly on the Cleaning Job page:
+//   Add "Submitted At" (Date) and "Responses" (Text) fields to your Cleaning Jobs DB
+
+const SESSION_KEY='ops_session';
+const COLOR_CLS={purple:'lav-purple',blue:'lav-blue',green:'lav-green',orange:'lav-orange',pink:'lav-pink'};
+const TEAM=[
+  {id:'22e6d2c2-5b81-452a-8b9e-91386e2284df',name:'Dovi',   initials:'DW',avCls:'av-a'},
+  {id:'1f8d872b-594c-8131-969e-0002091e249f',name:'Hindy',  initials:'HI',avCls:'av-b'},
+  {id:'32fd872b-594c-810e-8a81-00027e65666e',name:'Yechiel',initials:'YE',avCls:'av-c'},
+];
+
+/* ── State ──────────────────────────────────────────────── */
+let currentSession=null, loginUsers=[], loginSelectedUser=null, cleanerNoteOpen={};
+let cleanerViewTab=localStorage.getItem('cv_tab')||'dash';
+let propBoardTab=localStorage.getItem('pb_tab')||'status';
+let checklistJobId=null, checklistSection=0, checklistAnswers={};
+let expandedCalDays={}; // track which calendar days are expanded
+let cachedGuestyData=null; // cache last loaded guesty data for calendar re-render
+let notifTimestamps=JSON.parse(localStorage.getItem('notif_ts')||'{}'); // per-task received time
+let st={
+  section:localStorage.getItem('ops_section')||'mydash',
+  view:localStorage.getItem('ops_view')||'board',
+  cleaningTab:localStorage.getItem('cl_tab')||'jobs',
+  myDashTab:localStorage.getItem('md_tab')||'assigned',
+  tasks:[],workOrders:[],cleaningJobs:[],payments:[],cleaners:[],contractors:[],properties:[],
+  loading:true,
+  detailType:null,detailId:null,
+  modalType:null,modalPrefill:{},
+  tf:{status:'all',priority:'all',prop:'all'},
+  wf:{status:'all',prop:'all'},
+  cf:{status:'all',prop:'all',cleaner:'all',paid:'all'},
+};
+
+/* ── Auth ───────────────────────────────────────────────── */
+function loadSession(){try{const r=localStorage.getItem(SESSION_KEY);if(r)currentSession=JSON.parse(r);}catch(e){}}
+function saveSession(u){currentSession=u;localStorage.setItem(SESSION_KEY,JSON.stringify(u));}
+function logout(){
+  currentSession=null;localStorage.removeItem(SESSION_KEY);
+  document.getElementById('main-app').style.display='none';
+  document.getElementById('cleaner-view').style.display='none';
+  _cleanerJobs=[];checklistJobId=null;
+  showLoginScreen();
+}
+
+// Shared user loader — called at login screen AND on app boot (so saved-session users get full list)
+async function loadLoginUsers(){
+  try{
+    const [userPages,cleanerPages]=await Promise.all([queryDB(DBID_USERS),queryDB(DBID_CLEANERS)]);
+    const adminUsers=userPages.map(p=>{
+      const pr=p.properties;
+      return{id:p.id,name:rp(pr,'Name')||'',role:rp(pr,'Role')||'Admin',pin:String(rp(pr,'PIN')||'').trim(),color:rp(pr,'Color')||'purple',initials:rp(pr,'Initials')||''};
+    }).filter(u=>u.name);
+    const cleanerUsers=cleanerPages.map(p=>{
+      const pr=p.properties;
+      const name=rp(pr,'Name')||'';
+      const initials=name.split(' ').map(w=>w[0]||'').join('').toUpperCase().slice(0,2);
+      return{id:p.id,name,role:'Cleaner',pin:String(rp(pr,'PIN')||'').trim(),color:'green',initials};
+    }).filter(u=>u.name&&u.pin);
+    const adminNames=new Set(adminUsers.map(u=>u.name.toLowerCase()));
+    const merged=[...adminUsers,...cleanerUsers.filter(u=>!adminNames.has(u.name.toLowerCase()))];
+    if(merged.length)loginUsers=merged;
+  }catch(e){
+    // On login screen only, fall back to hardcoded users so login still works
+    if(!loginUsers.length)loginUsers=[
+      {id:'dovi',  name:'Dovi',   role:'Admin', pin:'1234', color:'purple',initials:'DW'},
+      {id:'hindy', name:'Hindy',  role:'Admin', pin:'2345', color:'blue',  initials:'HI'},
+      {id:'yechiel',name:'Yechiel',role:'Supervisor',pin:'3456',color:'green',initials:'YE'},
+    ];
+  }
+}
+async function showLoginScreen(){
+  document.getElementById('login-screen').style.display='flex';
+  const uEl=document.getElementById('ls-username');if(uEl)uEl.value='';
+  const pEl=document.getElementById('ls-pin-input');if(pEl)pEl.value='';
+  const eEl=document.getElementById('ls-pin-error');if(eEl)eEl.textContent='';
+  await loadLoginUsers();
+  setTimeout(()=>document.getElementById('ls-username')?.focus(),80);
+}
+function doLogin(){
+  const usernameRaw=(document.getElementById('ls-username')?.value||'').trim();
+  const pin=(document.getElementById('ls-pin-input')?.value||'').trim();
+  const errEl=document.getElementById('ls-pin-error');
+  errEl.textContent='';
+  if(!usernameRaw){errEl.textContent=t('Please enter your username');return;}
+  if(!pin){errEl.textContent=t('Please enter your PIN');return;}
+  const lower=usernameRaw.toLowerCase();
+  const user=loginUsers.find(u=>u.name.toLowerCase()===lower)||loginUsers.find(u=>u.name.toLowerCase().startsWith(lower));
+  if(!user){errEl.textContent=t('Username not found');return;}
+  if(!user.pin){errEl.textContent=t('No PIN set for your account — ask an admin to add one in Notion');return;}
+  if(pin!==user.pin){errEl.textContent=t('Incorrect PIN — try again');document.getElementById('ls-pin-input').value='';document.getElementById('ls-pin-input').focus();return;}
+  document.getElementById('login-screen').style.display='none';
+  saveSession(user);
+  bootApp();
+}
+function bootApp(){if(!currentSession){showLoginScreen();return;}window.scrollTo(0,0);const role=currentSession.role||'';if(role==='Cleaner'){launchCleanerView();}else{launchMainApp();}}
+
+/* ── Main App ───────────────────────────────────────────── */
+function launchMainApp(){
+  document.getElementById('main-app').style.display='flex';
+  applyMobile();
+  const avEl=document.getElementById('sb-av');avEl.className='avatar av-a';avEl.textContent=currentSession.initials;
+  document.getElementById('sb-name').textContent=currentSession.name;
+  document.getElementById('sb-role').textContent=currentSession.role;
+  // Topbar profile avatar (mobile)
+  const tbAv=document.getElementById('topbar-av');
+  if(tbAv){tbAv.className=`topbar-av-btn ${COLOR_CLS[currentSession.color]||'lav-purple'}`;tbAv.textContent=currentSession.initials;}
+  const ppName=document.getElementById('pp-name');if(ppName)ppName.textContent=currentSession.name;
+  const ppRole=document.getElementById('pp-role');if(ppRole)ppRole.textContent=currentSession.role;
+  setView(st.view);setSection(st.section);
+  // Fetch user list in background so assignee dropdowns work even with saved session
+  if(!loginUsers.length)loadLoginUsers();
+  loadAll();
+}
+
+/* ── Data Loading ───────────────────────────────────────── */
+async function loadAll(){
+  st.loading=true;renderSection();
+  try{
+    const [tP,wP,cP,payP,clnrP,ctrP,prP]=await Promise.all([
+      queryDB(DBID_TASKS),queryDB(DBID_WO),queryDB(DBID_CLEANING),
+      queryDB(DBID_PAYMENTS),queryDB(DBID_CLEANERS),queryDB(DBID_CONTRS),queryDB(DBID_PROP)
+    ]);
+    st.tasks=tP.map(parseTask);
+    st.workOrders=wP.map(parseWO);
+    st.cleaningJobs=cP.map(parseCleaning);
+    st.payments=payP.map(parsePayment);
+    st.cleaners=clnrP.map(parsePerson);
+    st.contractors=ctrP.map(parsePerson);
+    st.properties=prP.map(p=>({id:p.id,url:p.url,name:rp(p.properties,'Property Name')||'Property',propStatus:rp(p.properties,'Property Status')||'Dirty'}));
+  }catch(e){console.error('loadAll',e);}
+  st.loading=false;renderSection();
+  if(st.section==='cleaning')loadGuesty();
+}
+
+function parseTask(p){const pr=p.properties;return{id:p.id,url:p.url,name:rp(pr,'Task Name')||'Untitled',status:rp(pr,'Status')||'Open',priority:rp(pr,'Priority')||'',property:rp(pr,'Property')||'',assignee:rp(pr,'Assignee')||'',createdBy:rp(pr,'Created By')||'',deadline:rp(pr,'Deadline')||'',description:rp(pr,'Description')||'',linkedWOs:safeJSON(rp(pr,'Linked Work Orders'))};}
+function parseWO(p){const pr=p.properties;return{id:p.id,url:p.url,name:rp(pr,'Work Order Name')||'Untitled',status:rp(pr,'Status')||'Draft',property:rp(pr,'Property')||'',contractor:rp(pr,'Contractor')||'',supervisor:rp(pr,'Supervisor')||'',description:rp(pr,'Description')||'',linkedTask:safeJSON(rp(pr,'Linked Task')),estCompletion:rp(pr,'Est. Completion')||'',estCost:rp(pr,'Est. Cost'),payments:safeJSON(rp(pr,'Payments'))};}
+function parseCleaning(p){const pr=p.properties;return{id:p.id,url:p.url,name:rp(pr,'Job Name')||'Untitled',status:rp(pr,'Status')||'Scheduled',property:rp(pr,'Property')||'',cleaner:rp(pr,'Cleaner')||'',type:rp(pr,'Type of Clean')||'',rate:rp(pr,'Agreed Rate'),deadline:rp(pr,'Deadline')||'',notes:rp(pr,'Notes')||'',paid:rp(pr,'Paid?')===true,gResv:safeJSON(rp(pr,'Guesty Reservation')),submittedAt:rp(pr,'Submitted At')||'',responses:rp(pr,'Responses')||''};}
+function parsePayment(p){const pr=p.properties;return{id:p.id,url:p.url,name:rp(pr,'Payment Name')||'Payment',workOrder:safeJSON(rp(pr,'Work Order')),amount:rp(pr,'Amount Paid'),date:rp(pr,'Payment Date')||'',notes:rp(pr,'Notes')||'',receipt:rp(pr,'Receipt Image URL')||''};}
+function parsePerson(p){const pr=p.properties;return{id:p.id,url:p.url,name:rp(pr,'Name')||'',phone:rp(pr,'Phone')||'',email:rp(pr,'Email')||'',rate:rp(pr,'Default Rate'),specialty:rp(pr,'Specialty')||'',active:rp(pr,'Active')!==false};}
+
+/* ── Section Nav ────────────────────────────────────────── */
+function setSection(sec){
+  st.section=sec;localStorage.setItem('ops_section',sec);
+  window.scrollTo(0,0);document.querySelector('.content')?.scrollTo(0,0);
+  ['tasks','workorders','cleaning','mydash','notifications'].forEach(s=>{
+    const b=document.getElementById('nav-'+s);if(b)b.classList.toggle('active',s===sec);
+    const mb=document.getElementById('mnav-'+s);if(mb)mb.classList.toggle('active',s===sec);
+  });
+  const titles={tasks:t('Tasks'),workorders:t('Work Orders'),cleaning:t('Cleaning'),mydash:t('My Dashboard'),notifications:t('Notifications')};
+  document.getElementById('topbar-title').textContent=titles[sec]||sec;
+  const showVT=sec==='tasks'||sec==='workorders';
+  const noNew=sec==='mydash'||sec==='notifications';
+  const newLabel={tasks:t('+ New Task'),workorders:t('+ New Work Order'),cleaning:t('+ New Cleaning Job')}[sec]||t('+ New');
+  // Desktop: view toggle in topbar-right
+  const vtD=document.getElementById('view-toggle-d');if(vtD)vtD.style.display=showVT?'flex':'none';
+  const nb=document.getElementById('new-btn');if(nb){nb.style.display=noNew?'none':'inline-flex';nb.textContent=newLabel;}
+  // Mobile: row2 for view toggle + new btn
+  const isMob=window.innerWidth<=700;
+  const r2=document.getElementById('topbar-r2');
+  const vtM=document.getElementById('view-toggle');if(vtM)vtM.style.display=showVT?'flex':'none';
+  if(r2)r2.style.display=(isMob&&!noNew)?'flex':'none';
+  const nbm=document.getElementById('new-btn-m');if(nbm){nbm.textContent=newLabel;}
+  const gp=document.getElementById('guesty-panel');if(gp)gp.style.display=sec==='cleaning'?'block':'none';
+  if(sec==='cleaning'){renderPropStatusBoard();if(propBoardTab==='calendar')loadGuestyCalendar();}
+  if(sec==='notifications')loadNotifications();
+  closeDetail();renderSection();
+}
+function setView(v){
+  st.view=v;localStorage.setItem('ops_view',v);
+  // Sync desktop + mobile vt-btn active states
+  ['vt-board','vt-board-m'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.toggle('active',v==='board');});
+  ['vt-list','vt-list-m'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.toggle('active',v==='list');});
+  renderSection();
+}
+function renderSection(){
+  const el=document.getElementById('main-section');
+  if(st.loading){el.innerHTML='<div class="loading-msg">Loading…</div>';return;}
+  if(st.section==='tasks')el.innerHTML=renderTasks();
+  else if(st.section==='workorders')el.innerHTML=renderWorkOrders();
+  else if(st.section==='cleaning')el.innerHTML=renderCleaning();
+  else if(st.section==='mydash')el.innerHTML=renderMyDash();
+  else if(st.section==='notifications')el.innerHTML=renderNotificationsView();
+}
+
+/* ── Display helpers ────────────────────────────────────── */
+function statusTag(s){const map={'Open':'tag-blue','In Progress':'tag-yellow','Blocked':'tag-red','Done':'tag-green','Draft':'tag-gray','Active':'tag-blue','Complete':'tag-green','Accepted':'tag-purple','On Hold':'tag-orange','Cancelled':'tag-red','Scheduled':'tag-blue'};return`<span class="tag ${map[s]||'tag-gray'}">${h(t(s))}</span>`;}
+function priorityTag(p){if(!p)return'';const map={High:'tag-red',Medium:'tag-yellow',Low:'tag-gray'};return`<span class="tag ${map[p]||'tag-gray'}">${h(t(p))}</span>`;}
+function fmtRelDate(d){
+  if(!d)return'';
+  try{
+    const dt=new Date(d.length===10?d+'T00:00:00':d);
+    const today=new Date();today.setHours(0,0,0,0);
+    const diff=Math.round((dt-today)/86400000);
+    if(diff===0)return'Today';
+    if(diff===1)return'Tomorrow';
+    if(diff===-1)return'Yesterday';
+    const curY=today.getFullYear(),dtY=dt.getFullYear();
+    const opts={month:'short',day:'numeric'};
+    if(dtY!==curY)opts.year='numeric';
+    return dt.toLocaleDateString('en-US',opts);
+  }catch{return d;}
+}
+// Relative time for timestamps (comments, notifications)
+function fmtRelTime(isoStr){
+  if(!isoStr)return'';
+  try{
+    const dt=new Date(isoStr);
+    const now=new Date();
+    const diffMs=now-dt;
+    const diffMin=Math.floor(diffMs/60000);
+    const diffHrs=Math.floor(diffMs/3600000);
+    if(diffMin<1)return'just now';
+    if(diffMin<60)return diffMin===1?'1 min ago':`${diffMin} mins ago`;
+    if(diffHrs<24)return diffHrs===1?'1 hr ago':`${diffHrs} hrs ago`;
+    const today=new Date();today.setHours(0,0,0,0);
+    const yesterday=new Date(today);yesterday.setDate(yesterday.getDate()-1);
+    const dtDay=new Date(dt);dtDay.setHours(0,0,0,0);
+    const timeStr=dt.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+    if(dtDay.getTime()===today.getTime())return`Today ${timeStr}`;
+    if(dtDay.getTime()===yesterday.getTime())return`Yesterday ${timeStr}`;
+    const curY=today.getFullYear(),dtY=dt.getFullYear();
+    const dateStr=dt.toLocaleDateString('en-US',{month:'short',day:'numeric',...(dtY!==curY?{year:'numeric'}:{})});
+    return`${dateStr} ${timeStr}`;
+  }catch{return'';}
+}
+function dueTag(d){
+  if(!d)return'';
+  try{
+    const dt=new Date(d+'T00:00:00');
+    const today=new Date();today.setHours(0,0,0,0);
+    const ov=dt<today;
+    return`<span class="due${ov?' overdue':''}">${fmtRelDate(d)}</span>`;
+  }catch{return`<span class="due">${h(d)}</span>`;}
+}
+const colorToAvCls={purple:'av-a',blue:'av-b',green:'av-c',orange:'av-d',pink:'av-e'};
+function avFor(name){
+  if(!name)return'';
+  const m=loginUsers.find(u=>name.toLowerCase().includes(u.name.toLowerCase()))||TEAM.find(t=>name.toLowerCase().includes(t.name.toLowerCase()));
+  if(!m)return'';
+  const cls=m.avCls||(colorToAvCls[m.color]||'av-a');
+  const ini=m.initials||(m.name||'').substring(0,2).toUpperCase();
+  return`<span class="avatar ${cls}" title="${h(m.name)}">${h(ini)}</span>`;
+}
+function fmtMoney(n){return n!=null&&n!==''?'$'+Number(n).toLocaleString():'—';}
+
+/* ── Tasks ──────────────────────────────────────────────── */
+function sortByDeadline(arr,field='deadline'){return [...arr].sort((a,b)=>{const da=a[field]||'9999',db=b[field]||'9999';return da.localeCompare(db);});}
+function renderTasks(){
+  const tasks=sortByDeadline(st.tasks.filter(t=>(st.tf.status==='all'||t.status===st.tf.status)&&(st.tf.priority==='all'||t.priority===st.tf.priority)&&(st.tf.prop==='all'||t.property===st.tf.prop)));
+  const propOpts=[...new Set(st.tasks.map(t=>t.property).filter(Boolean))].map(p=>`<option${st.tf.prop===p?' selected':''}>${h(p)}</option>`).join('');
+  const filters=`<div class="filters"><select class="sel" onchange="st.tf.status=this.value;renderSection()"><option value="all">${t('All statuses')}</option><option value="Open">${t('Open')}</option><option value="In Progress">${t('In Progress')}</option><option value="Blocked">${t('Blocked')}</option><option value="Done">${t('Done')}</option></select><select class="sel" onchange="st.tf.priority=this.value;renderSection()"><option value="all">${t('All priorities')}</option><option value="High">${t('High')}</option><option value="Medium">${t('Medium')}</option><option value="Low">${t('Low')}</option></select><select class="sel" onchange="st.tf.prop=this.value;renderSection()"><option value="all">${t('All properties')}</option>${propOpts}</select></div>`;
+  if(!tasks.length)return filters+`<div class="empty"><div class="empty-icon">📋</div><div>${t('No tasks yet')}</div></div>`;
+  if(st.view==='board'){
+    const cols=[['Open','#3b82f6'],['In Progress','#eab308'],['Blocked','#ef4444'],['Done','#22c55e']];
+    return filters+`<div class="board">${cols.map(([s,c])=>`<div class="kcol"><div class="kcol-head"><div class="kcol-title"><span class="sdot" style="background:${c}"></span>${t(s)}</div><span class="kcnt">${tasks.filter(t=>t.status===s).length}</span></div>${tasks.filter(t=>t.status===s).map(t=>`<div class="card" onclick="openDetail('task','${aa(t.id)}')"><div class="card-title">${h(t.name)}</div>${t.property?`<div style="font-size:10px;color:#7F77DD;font-weight:600;margin-bottom:4px;">${h(t.property)}</div>`:''}<div class="card-meta">${priorityTag(t.priority)}${dueTag(t.deadline)}${avFor(t.assignee)}${Array.isArray(t.linkedWOs)&&t.linkedWOs.length?`<span class="tag tag-gray">🔧 ${t.linkedWOs.length}</span>`:''}</div></div>`).join('')}</div>`).join('')}</div>`;
+  }
+  return filters+`<div class="list-view">${tasks.map(t=>`<div class="list-item" onclick="openDetail('task','${aa(t.id)}')"><div class="list-item-main"><div class="list-item-title">${h(t.name)}</div><div class="list-item-meta">${statusTag(t.status)}${priorityTag(t.priority)}${t.property?`<span class="tag tag-prop">${h(t.property)}</span>`:''}</div></div><div class="list-item-right">${avFor(t.assignee)}${dueTag(t.deadline)}</div></div>`).join('')}</div>`;
+}
+
+/* ── Work Orders ────────────────────────────────────────── */
+function renderWorkOrders(){
+  const wos=st.workOrders.filter(w=>(st.wf.status==='all'||w.status===st.wf.status)&&(st.wf.prop==='all'||w.property===st.wf.prop));
+  const propOpts=[...new Set(st.workOrders.map(w=>w.property).filter(Boolean))].map(p=>`<option${st.wf.prop===p?' selected':''}>${h(p)}</option>`).join('');
+  const filters=`<div class="filters"><select class="sel" onchange="st.wf.status=this.value;renderSection()"><option value="all">${t('All statuses')}</option><option value="Draft">${t('Draft')}</option><option value="Active">${t('Active')}</option><option value="In Progress">${t('In Progress')}</option><option value="Complete">${t('Complete')}</option><option value="On Hold">${t('On Hold')}</option><option value="Cancelled">${t('Cancelled')}</option></select><select class="sel" onchange="st.wf.prop=this.value;renderSection()"><option value="all">${t('All properties')}</option>${propOpts}</select></div>`;
+  if(!wos.length)return filters+`<div class="empty"><div class="empty-icon">🔧</div><div>${t('No work orders yet')}</div></div>`;
+  if(st.view==='board'){
+    const cols=[['Draft','#9ca3af'],['Active','#3b82f6'],['In Progress','#eab308'],['Complete','#22c55e'],['On Hold','#f97316'],['Cancelled','#ef4444']];
+    return filters+`<div class="board">${cols.map(([s,c])=>`<div class="kcol"><div class="kcol-head"><div class="kcol-title"><span class="sdot" style="background:${c}"></span>${h(s)}</div><span class="kcnt">${wos.filter(w=>w.status===s).length}</span></div>${wos.filter(w=>w.status===s).map(w=>`<div class="card" onclick="openDetail('wo','${aa(w.id)}')"><div class="card-title">${h(w.name)}</div>${w.property?`<div style="font-size:10px;color:#7F77DD;font-weight:600;margin-bottom:4px;">${h(w.property)}</div>`:''}<div class="card-meta">${w.estCost?`<span class="tag tag-gray">${fmtMoney(w.estCost)}</span>`:''}${dueTag(w.estCompletion)}${avFor(w.supervisor)}</div></div>`).join('')}</div>`).join('')}</div>`;
+  }
+  return filters+`<div class="list-view">${wos.map(w=>`<div class="list-item" onclick="openDetail('wo','${aa(w.id)}')"><div class="list-item-main"><div class="list-item-title">${h(w.name)}</div><div class="list-item-meta">${statusTag(w.status)}${w.property?`<span class="tag tag-prop">${h(w.property)}</span>`:''}${w.contractor?`<span class="tag tag-gray">${h(w.contractor)}</span>`:''}</div></div><div class="list-item-right">${w.estCost?`<span style="font-size:12px;font-weight:500;">${fmtMoney(w.estCost)}</span>`:''}${dueTag(w.estCompletion)}</div></div>`).join('')}</div>`;
+}
+
+/* ── Cleaning ───────────────────────────────────────────── */
+function renderCleaning(){
+  const tabs=`<div class="tab-bar">
+    <button class="tab-btn${st.cleaningTab==='jobs'?' active':''}" onclick="setCleaningTab('jobs')" data-i18n="Cleaning Jobs">Cleaning Jobs</button>
+    <button class="tab-btn${st.cleaningTab==='submissions'?' active':''}" onclick="setCleaningTab('submissions')" data-i18n="Submissions">Submissions</button>
+    <button class="tab-btn${st.cleaningTab==='payments'?' active':''}" onclick="setCleaningTab('payments')" data-i18n="Payment Dashboard">Payment Dashboard</button>
+  </div>`;
+  let content='';
+  if(st.cleaningTab==='payments')content=renderPaymentDashboard();
+  else if(st.cleaningTab==='submissions')content=renderSubmissions();
+  else content=renderCleaningJobs();
+  return tabs+content;
+}
+function setCleaningTab(tab){st.cleaningTab=tab;localStorage.setItem('cl_tab',tab);renderSection();}
+
+function formatChecklistResponses(raw){
+  // Parse the structured section text into coloured HTML
+  if(!raw)return'';
+  const sections=raw.split(/\n\n+/);
+  return sections.map(sec=>{
+    const lines=sec.split('\n');
+    const title=lines[0]||'';
+    const items=lines.slice(1).map(line=>{
+      const isYes=line.startsWith('  ✓');
+      const isNo=line.startsWith('  ✗');
+      const color=isYes?'#166534':isNo?'#991b1b':'#555';
+      const bg=isYes?'#dcfce7':isNo?'#fee2e2':'#f1f5f9';
+      return`<div style="display:flex;align-items:flex-start;gap:6px;padding:3px 0;">
+        <span style="font-size:11px;background:${bg};color:${color};border-radius:4px;padding:1px 5px;flex-shrink:0;font-weight:600;">${isYes?'✓':isNo?'✗':'—'}</span>
+        <span style="font-size:12px;color:${isNo?'#991b1b':'#374151'};">${h(line.replace(/^\s+[✓✗—]\s*/,''))}</span>
+      </div>`;
+    }).join('');
+    return`<div style="margin-bottom:10px;">
+      <div style="font-size:11px;font-weight:700;color:#6b7280;margin-bottom:4px;">${h(title)}</div>
+      ${items}
+    </div>`;
+  }).join('');
+}
+function renderSubmissions(){
+  const subs=st.cleaningJobs.filter(j=>j.responses||j.submittedAt);
+  if(!subs.length){
+    return`<div class="empty"><div class="empty-icon">📋</div><div>No checklist submissions yet.<br><span style="font-size:12px;color:#aaa;">Make sure you've added <em>Submitted At</em> (Date) and <em>Responses</em> (Text) fields to your Cleaning Jobs DB in Notion.</span></div></div>`;
+  }
+  const sorted=[...subs].sort((a,b)=>(b.submittedAt||'').localeCompare(a.submittedAt||''));
+  return`<div style="display:flex;flex-direction:column;gap:10px;">${sorted.map(j=>{
+    // count issues
+    const noCount=(j.responses.match(/^\s+✗/gm)||[]).length;
+    return`<div style="background:#fff;border:1px solid #e5e4e0;border-radius:10px;padding:12px 14px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+        <div style="font-size:13px;font-weight:600;flex:1;">${h(j.name)}</div>
+        ${noCount?`<span class="tag tag-red">⚠ ${noCount} issue${noCount>1?'s':''}</span>`:'<span class="tag tag-green">✓ All clear</span>'}
+        <span style="font-size:10px;color:#aaa;">${j.submittedAt?fmtRelDate(j.submittedAt):''}</span>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
+        ${j.property?`<span class="tag tag-prop">${h(j.property)}</span>`:''}
+        ${j.cleaner?`<span class="tag tag-gray">🧹 ${h(j.cleaner)}</span>`:''}
+      </div>
+      ${j.responses?`<details style="margin-top:4px;"><summary style="font-size:11px;color:#7F77DD;cursor:pointer;font-weight:500;">View checklist answers</summary><div style="margin-top:8px;padding-top:8px;border-top:1px solid #f0f0ee;">${formatChecklistResponses(j.responses)}</div></details>`:''}
+    </div>`;
+  }).join('')}</div>`;
+}
+function renderCleaningJobs(){
+  const jobs=st.cleaningJobs.filter(j=>(st.cf.status==='all'||j.status===st.cf.status)&&(st.cf.prop==='all'||j.property===st.cf.prop)&&(st.cf.cleaner==='all'||j.cleaner===st.cf.cleaner)&&(st.cf.paid==='all'||(st.cf.paid==='unpaid'&&!j.paid)||(st.cf.paid==='paid'&&j.paid)));
+  const propOpts=[...new Set(st.cleaningJobs.map(j=>j.property).filter(Boolean))].map(p=>`<option${st.cf.prop===p?' selected':''}>${h(p)}</option>`).join('');
+  const cleanerOpts=[...new Set(st.cleaningJobs.map(j=>j.cleaner).filter(Boolean))].map(c=>`<option${st.cf.cleaner===c?' selected':''}>${h(c)}</option>`).join('');
+  const filters=`<div class="filters"><select class="sel" onchange="st.cf.status=this.value;renderSection()"><option value="all">${t('All statuses')}</option><option value="Scheduled">${t('Scheduled')}</option><option value="Accepted">${t('Accepted')}</option><option value="In Progress">${t('In Progress')}</option><option value="Complete">${t('Complete')}</option><option value="Cancelled">${t('Cancelled')}</option></select><select class="sel" onchange="st.cf.prop=this.value;renderSection()"><option value="all">${t('All properties')}</option>${propOpts}</select><select class="sel" onchange="st.cf.cleaner=this.value;renderSection()"><option value="all">${t('All cleaners')}</option>${cleanerOpts}</select><select class="sel" onchange="st.cf.paid=this.value;renderSection()"><option value="all">${t('All payment status')}</option><option value="unpaid">${t('Unpaid only')}</option><option value="paid">${t('Paid only')}</option></select></div>`;
+  if(!jobs.length)return filters+`<div class="empty"><div class="empty-icon">🧹</div><div>${t('No cleaning jobs yet')}</div></div>`;
+  return filters+`<div class="list-view">${jobs.map(j=>`<div class="list-item" onclick="openDetail('cleaning','${aa(j.id)}')"><div class="list-item-main"><div class="list-item-title">${h(j.name)}</div><div class="list-item-meta">${statusTag(j.status)}${j.property?`<span class="tag tag-prop">${h(j.property)}</span>`:''}${j.cleaner?`<span class="tag tag-gray">🧹 ${h(j.cleaner)}</span>`:''}${j.type?`<span class="tag tag-blue">${h(j.type)}</span>`:''}${j.gResv?`<span class="tag tag-purple" title="${h(j.gResv.guestName||'')}">🔗 Guesty</span>`:''}</div></div><div class="list-item-right">${j.rate?`<span style="font-size:12px;font-weight:500;">${fmtMoney(j.rate)}</span>`:''}<span class="tag ${j.paid?'tag-green':'tag-red'}">${j.paid?t('✓ Paid'):t('Unpaid')}</span>${dueTag(j.deadline)}</div></div>`).join('')}</div>`;
+}
+function renderPaymentDashboard(){
+  const unpaid=st.cleaningJobs.filter(j=>!j.paid&&j.status!=='Cancelled');
+  const total=unpaid.reduce((s,j)=>s+(j.rate||0),0);
+  const byCleanerMap={};unpaid.forEach(j=>{const c=j.cleaner||'Unknown';if(!byCleanerMap[c])byCleanerMap[c]={name:c,total:0,count:0};byCleanerMap[c].total+=(j.rate||0);byCleanerMap[c].count++;});
+  const byCleaner=Object.values(byCleanerMap).sort((a,b)=>b.total-a.total);
+  return`<div class="pay-dash"><div class="pay-summary"><div class="pay-stat"><div class="pay-stat-n">${fmtMoney(total)}</div><div class="pay-stat-l">${t('Outstanding')}</div></div><div class="pay-stat"><div class="pay-stat-n">${unpaid.length}</div><div class="pay-stat-l">${t('Unpaid jobs')}</div></div><div class="pay-stat"><div class="pay-stat-n">${byCleaner.length}</div><div class="pay-stat-l">${t('Cleaners owed')}</div></div></div>${byCleaner.length?byCleaner.map(c=>`<div class="pay-cleaner-row"><div class="pay-cleaner-name">🧹 ${h(c.name)}</div><div class="pay-cleaner-cnt">${c.count} job${c.count>1?'s':''}</div><div class="pay-cleaner-amt">${fmtMoney(c.total)}</div><button class="btn btn-sm" onclick="st.cf.cleaner='${aa(c.name)}';st.cf.paid='unpaid';setCleaningTab('jobs')">${t('View')}</button></div>`).join(''):`<div class="empty"><div class="empty-icon">✅</div><div>${t('All cleaners paid up!')}</div></div>`}`;
+}
+
+/* ── My Dashboard ───────────────────────────────────────── */
+if(!('myDashProp' in st))st.myDashProp='all';
+function renderMyDash(){
+  const me=currentSession?.name||'';
+  const isAdmin=currentSession?.role==='Admin'||currentSession?.role==='Supervisor'||currentSession?.role==='Operations Manager';
+  const propNames=[...new Set([...st.tasks.map(t=>t.property),...st.cleaningJobs.map(j=>j.property)].filter(Boolean))];
+  const propFilter=propNames.length?`<div style="margin-bottom:12px;"><select class="sel" onchange="st.myDashProp=this.value;renderSection()"><option value="all">${t('All properties')}</option>${propNames.map(p=>`<option${st.myDashProp===p?' selected':''}>${h(p)}</option>`).join('')}</select></div>`:'';
+  const tabs=`<div style="display:flex;gap:6px;margin-bottom:14px;"><button class="filter-chip${st.myDashTab==='assigned'?' active':''}" onclick="st.myDashTab='assigned';localStorage.setItem('md_tab','assigned');renderSection()">${isAdmin?t('All Tasks'):t('Assigned to me')}</button><button class="filter-chip${st.myDashTab==='supervising'?' active':''}" onclick="st.myDashTab='supervising';localStorage.setItem('md_tab','supervising');renderSection()">${t('Work Orders')}</button></div>`;
+  let content='';
+  if(st.myDashTab==='assigned'){
+    // Admins see everything; others see only their assigned items
+    let myT=isAdmin
+      ?st.tasks.filter(t=>t.status!=='Done')
+      :st.tasks.filter(t=>t.assignee&&t.assignee.toLowerCase().includes(me.toLowerCase())&&t.status!=='Done');
+    if(st.myDashProp!=='all')myT=myT.filter(t=>t.property===st.myDashProp);
+    myT=sortByDeadline(myT);
+    let myC=isAdmin
+      ?st.cleaningJobs.filter(j=>j.status!=='Complete'&&j.status!=='Cancelled')
+      :st.cleaningJobs.filter(j=>j.cleaner&&j.cleaner.toLowerCase().includes(me.toLowerCase())&&j.status!=='Complete'&&j.status!=='Cancelled');
+    if(st.myDashProp!=='all')myC=myC.filter(j=>j.property===st.myDashProp);
+    myC=sortByDeadline(myC);
+    content=(myT.length?`<div class="section-group"><div class="section-group-title">${t('Tasks')} (${myT.length})</div><div class="list-view">${myT.map(tk=>`<div class="list-item" onclick="openDetail('task','${aa(tk.id)}')"><div class="list-item-main"><div class="list-item-title">${h(tk.name)}</div><div class="list-item-meta">${statusTag(tk.status)}${priorityTag(tk.priority)}${tk.property?`<span class="tag tag-prop">${h(tk.property)}</span>`:''}${tk.assignee?`<span class="tag tag-gray">${h(tk.assignee)}</span>`:''}</div></div><div class="list-item-right">${dueTag(tk.deadline)}</div></div>`).join('')}</div></div>`:'')+
+      (myC.length?`<div class="section-group"><div class="section-group-title">${t('Cleaning Jobs')} (${myC.length})</div><div class="list-view">${myC.map(j=>`<div class="list-item" onclick="openDetail('cleaning','${aa(j.id)}')"><div class="list-item-main"><div class="list-item-title">${h(j.name)}</div><div class="list-item-meta">${statusTag(j.status)}${j.property?`<span class="tag tag-prop">${h(j.property)}</span>`:''}${j.cleaner?`<span class="tag tag-gray">🧹 ${h(j.cleaner)}</span>`:''}</div></div><div class="list-item-right">${dueTag(j.deadline)}</div></div>`).join('')}</div></div>`:'')||`<div class="empty"><div class="empty-icon">✅</div><div>${isAdmin?t('No open tasks or jobs'):t('Nothing assigned to you right now')}</div></div>`;
+  }else{
+    let myW=isAdmin
+      ?st.workOrders.filter(w=>w.status!=='Complete'&&w.status!=='Cancelled')
+      :st.workOrders.filter(w=>w.supervisor&&w.supervisor.toLowerCase().includes(me.toLowerCase())&&w.status!=='Complete'&&w.status!=='Cancelled');
+    if(st.myDashProp!=='all')myW=myW.filter(w=>w.property===st.myDashProp);
+    myW=sortByDeadline(myW,'estCompletion');
+    content=myW.length?`<div class="list-view">${myW.map(w=>`<div class="list-item" onclick="openDetail('wo','${aa(w.id)}')"><div class="list-item-main"><div class="list-item-title">${h(w.name)}</div><div class="list-item-meta">${statusTag(w.status)}${w.property?`<span class="tag tag-prop">${h(w.property)}</span>`:''}${w.supervisor?`<span class="tag tag-gray">${h(w.supervisor)}</span>`:''}</div></div><div class="list-item-right">${dueTag(w.estCompletion)}</div></div>`).join('')}</div>`:`<div class="empty"><div class="empty-icon">👀</div><div>${t('No active work orders')}</div></div>`;
+  }
+  return propFilter+tabs+content;
+}
+
+/* ── Detail Panel ───────────────────────────────────────── */
+function openDetail(type,id){
+  st.detailType=type;st.detailId=id;
+  const item=type==='task'?st.tasks.find(t=>t.id===id):type==='wo'?st.workOrders.find(w=>w.id===id):st.cleaningJobs.find(j=>j.id===id);
+  if(!item)return;
+  document.getElementById('detail-panel').classList.add('open');
+  document.getElementById('dp-title').textContent=item.name||'Detail';
+  document.getElementById('dp-notion-link').href=item.url||'#';
+  document.getElementById('dp-body').innerHTML=renderDetailBody(type,item);
+  loadComments(id);
+}
+function closeDetail(){st.detailType=null;st.detailId=null;document.getElementById('detail-panel').classList.remove('open');}
+
+function renderDetailBody(type,item){
+  let fields='',extra='';
+  if(type==='task'){
+    fields=`
+      <div class="detail-field"><div class="df-label">Status</div><div class="df-val"><select onchange="updateField('task','${aa(item.id)}','Status','select',this.value)">${['Open','In Progress','Blocked','Done'].map(s=>`<option${item.status===s?' selected':''}>${s}</option>`).join('')}</select></div></div>
+      <div class="detail-field"><div class="df-label">Priority</div><div class="df-val"><select onchange="updateField('task','${aa(item.id)}','Priority','select',this.value)"><option value=""${!item.priority?' selected':''}>—</option>${['High','Medium','Low'].map(p=>`<option${item.priority===p?' selected':''}>${p}</option>`).join('')}</select></div></div>
+      <div class="detail-field"><div class="df-label">Property</div><div class="df-val"><select onchange="updateField('task','${aa(item.id)}','Property','text',this.value)"><option value="">— none —</option>${st.properties.map(p=>`<option${item.property===p.name?' selected':''}>${h(p.name)}</option>`).join('')}</select></div></div>
+      <div class="detail-field"><div class="df-label">Assignee</div><div class="df-val"><select onchange="updateField('task','${aa(item.id)}','Assignee','text',this.value)"><option value=""${!item.assignee?' selected':''}>— none —</option>${(loginUsers.length?loginUsers.filter(u=>u.role!=='Cleaner'):TEAM).map(u=>`<option${item.assignee&&item.assignee.includes(u.name)?' selected':''}>${h(u.name)}</option>`).join('')}</select></div></div>
+      <div class="detail-field"><div class="df-label">Deadline</div><div class="df-val"><input type="date" value="${h(item.deadline||'')}" style="border:1px solid #d5d4d0;border-radius:5px;padding:2px 6px;font-size:12px;font-family:inherit;color:#1a1a1a;" onchange="updateField('task','${aa(item.id)}','Deadline','date',this.value)"></div></div>
+      <div class="detail-field"><div class="df-label">Created by</div><div class="df-val">${h(item.createdBy)||'—'}</div></div>
+      ${item.description?`<div class="detail-field"><div class="df-label">Description</div><div class="df-val" style="white-space:pre-wrap;line-height:1.5;">${h(item.description)}</div></div>`:''}`;
+    const wos=Array.isArray(item.linkedWOs)?item.linkedWOs:[];
+    extra=`<div class="detail-section"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;"><div class="detail-section-label">Linked Work Orders (${wos.length})</div><button class="btn btn-sm btn-primary" onclick="openModal('wo',{linkedTaskId:'${aa(item.id)}',linkedTaskName:'${aa(item.name)}',property:'${aa(item.property)}'})">+ Add Work Order</button></div><div class="linked-list">${wos.length?wos.map(w=>`<div class="linked-item"><span class="linked-item-name">${h(w.name||w)}</span></div>`).join(''):'<div style="font-size:12px;color:#aaa;">No linked work orders</div>'}</div></div>`;
+  }else if(type==='wo'){
+    fields=`
+      <div class="detail-field"><div class="df-label">Status</div><div class="df-val"><select onchange="updateField('wo','${aa(item.id)}','Status','select',this.value)">${['Draft','Active','In Progress','Complete','On Hold','Cancelled'].map(s=>`<option${item.status===s?' selected':''}>${s}</option>`).join('')}</select></div></div>
+      <div class="detail-field"><div class="df-label">Property</div><div class="df-val">${h(item.property)||'—'}</div></div>
+      <div class="detail-field"><div class="df-label">Contractor</div><div class="df-val">${h(item.contractor)||'—'}</div></div>
+      <div class="detail-field"><div class="df-label">Supervisor</div><div class="df-val">${h(item.supervisor)||'—'} ${avFor(item.supervisor)}</div></div>
+      <div class="detail-field"><div class="df-label">Est. Cost</div><div class="df-val">${fmtMoney(item.estCost)}</div></div>
+      <div class="detail-field"><div class="df-label">Est. Completion</div><div class="df-val">${item.estCompletion?fmtRelDate(item.estCompletion):'—'}</div></div>
+      ${item.linkedTask?`<div class="detail-field"><div class="df-label">Linked Task</div><div class="df-val"><button class="btn-ghost" onclick="openDetail('task','${aa(item.linkedTask.id||'')}')">${h(item.linkedTask.name||'View task')}</button></div></div>`:''}
+      ${item.description?`<div class="detail-field"><div class="df-label">Description</div><div class="df-val" style="white-space:pre-wrap;line-height:1.5;">${h(item.description)}</div></div>`:''}`;
+    const pays=Array.isArray(item.payments)?item.payments:[];
+    const payTotal=pays.reduce((s,p)=>s+(p.amount||0),0);
+    extra=`<div class="detail-section"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;"><div class="detail-section-label">Payments${pays.length?` · ${fmtMoney(payTotal)}`:''} (${pays.length})</div><button class="btn btn-sm btn-primary" onclick="openModal('payment',{woId:'${aa(item.id)}',woName:'${aa(item.name)}'})">+ Add Payment</button></div><div class="linked-list">${pays.length?pays.map(p=>`<div class="linked-item"><span class="linked-item-name">${h(p.name||'Payment')}</span>${p.amount?`<span style="font-size:11px;font-weight:600;color:#166534;">${fmtMoney(p.amount)}</span>`:''}</div>`).join(''):'<div style="font-size:12px;color:#aaa;">No payments yet</div>'}</div></div>`;
+  }else if(type==='cleaning'){
+    fields=`
+      <div class="detail-field"><div class="df-label">Status</div><div class="df-val"><select onchange="updateField('cleaning','${aa(item.id)}','Status','select',this.value)">${['Scheduled','Accepted','In Progress','Complete','Cancelled'].map(s=>`<option${item.status===s?' selected':''}>${s}</option>`).join('')}</select></div></div>
+      <div class="detail-field"><div class="df-label">Paid?</div><div class="df-val"><label style="cursor:pointer;display:flex;align-items:center;gap:6px;"><input type="checkbox" ${item.paid?'checked':''} onchange="updateField('cleaning','${aa(item.id)}','Paid?','checkbox',this.checked)"><span>${item.paid?'✓ Paid':'Not paid'}</span></label></div></div>
+      <div class="detail-field"><div class="df-label">Property</div><div class="df-val">${h(item.property)||'—'}</div></div>
+      <div class="detail-field"><div class="df-label">Cleaner</div><div class="df-val">${h(item.cleaner)||'—'}</div></div>
+      <div class="detail-field"><div class="df-label">Type of Clean</div><div class="df-val">${h(item.type)||'—'}</div></div>
+      <div class="detail-field"><div class="df-label">Agreed Rate</div><div class="df-val">${fmtMoney(item.rate)}</div></div>
+      <div class="detail-field"><div class="df-label">Deadline</div><div class="df-val">${item.deadline?fmtRelDate(item.deadline):'—'}</div></div>
+      ${item.notes?`<div class="detail-field"><div class="df-label">Notes</div><div class="df-val" style="white-space:pre-wrap;line-height:1.5;">${h(item.notes)}</div></div>`:''}
+      ${item.gResv?`<div class="detail-field"><div class="df-label">Reservation</div><div class="df-val" style="font-size:12px;"><div style="font-weight:500;">${h(item.gResv.listingName||'')}</div><div style="color:#555;">👤 ${h(item.gResv.guestName||'')}</div><div style="color:#888;">${item.gResv.checkIn?`↓ ${new Date(item.gResv.checkIn+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'})}`:''} → ${item.gResv.checkOut?`↑ ${new Date(item.gResv.checkOut+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'})}`:''}</div><div style="color:#aaa;font-size:10px;">ID: ${h(item.gResv.id||'')}</div></div></div>`:''}`;
+  }
+  return`<div class="detail-section"><div class="detail-section-label">${t('Details')}</div>${fields}</div>${extra}<div class="detail-section"><div class="detail-section-label" style="margin-bottom:10px;">${t('Comments')}</div><div id="dp-comments" class="comment-list"><div style="color:#aaa;font-size:12px;">${t('Loading…')}</div></div><div class="comment-input-wrap"><textarea class="comment-input" id="dp-comment-input" rows="2" placeholder="${t('Add a comment…')}"></textarea><button class="btn btn-primary" style="align-self:flex-end;" onclick="submitComment('${aa(item.id)}')">${t('Send')}</button></div></div>`;
+}
+
+async function updateField(type,id,field,propType,value){
+  try{
+    const props={};
+    if(propType==='select')props[field]=wp('select',value);
+    else if(propType==='checkbox')props[field]=wp('checkbox',value);
+    else props[field]=wp('text',value);
+    await updatePage(id,props);
+    const item=type==='task'?st.tasks.find(t=>t.id===id):type==='wo'?st.workOrders.find(w=>w.id===id):st.cleaningJobs.find(j=>j.id===id);
+    if(item){
+      if(field==='Status')item.status=value;
+      else if(field==='Priority')item.priority=value;
+      else if(field==='Paid?')item.paid=value;
+      else if(field==='Property')item.property=value;
+      else if(field==='Assignee')item.assignee=value;
+      else if(field==='Deadline')item.deadline=value;
+    }
+    toast('Updated ✓');renderSection();
+  }catch(e){toast('Error: '+(e.message||e));}
+}
+
+let deletedCommentIds=JSON.parse(localStorage.getItem('deleted_comments')||'[]');
+let editingCommentId=null;
+
+function markCommentDeleted(commentId,pageId){
+  if(!deletedCommentIds.includes(commentId))deletedCommentIds.push(commentId);
+  localStorage.setItem('deleted_comments',JSON.stringify(deletedCommentIds));
+  loadComments(pageId);
+}
+
+function startEditComment(commentId,pageId,currentBody){
+  editingCommentId=commentId;
+  // Re-render so textarea appears for that comment
+  const el=document.getElementById('dp-comments');
+  if(!el)return;
+  // Find the comment div and replace with an edit form
+  const cards=el.querySelectorAll('.comment');
+  cards.forEach(card=>{
+    if(card.dataset.cid===commentId){
+      card.innerHTML=`<textarea id="edit-comment-ta" style="width:100%;padding:6px;border:1px solid #7F77DD;border-radius:6px;font-size:13px;font-family:inherit;resize:none;" rows="3">${currentBody.replace(/</g,'&lt;')}</textarea><div style="display:flex;gap:6px;margin-top:5px;"><button class="btn btn-primary btn-sm" onclick="submitEditComment('${aa(commentId)}','${aa(pageId)}')">Save</button><button class="btn btn-sm" onclick="editingCommentId=null;loadComments('${aa(pageId)}')">Cancel</button></div>`;
+      card.querySelector('#edit-comment-ta').focus();
+    }
+  });
+}
+
+async function submitEditComment(commentId,pageId){
+  const ta=document.getElementById('edit-comment-ta');
+  const newBody=(ta?.value||'').trim();if(!newBody)return;
+  const name=currentSession?.name||'Team';
+  const prefixed=`[${name}]: ${newBody}`;
+  try{
+    // Mark old comment deleted and create new one with edited text
+    markCommentDeleted(commentId,pageId);
+    await addComment(pageId,prefixed);
+    editingCommentId=null;
+    toast('Comment updated ✓');
+    loadComments(pageId);
+  }catch(e){toast('Error: '+(e.message||e));}
+}
+
+async function loadComments(pageId){
+  const el=document.getElementById('dp-comments');if(!el)return;
+  try{
+    const res=await getComments(pageId);
+    const comments=(res.results||[]).filter(c=>!deletedCommentIds.includes(c.id));
+    if(!comments.length){el.innerHTML='<div style="color:#aaa;font-size:12px;">No comments yet</div>';return;}
+    el.innerHTML=comments.map(c=>{
+      const rawText=(c.rich_text||[]).map(rt=>rt.plain_text||rt.text?.content||'').join('');
+      // Support both "[Name]: text" (new) and "[Name · date]: text" (legacy) formats
+      const match=rawText.match(/^\[([^\]]+?)\]:\s([\s\S]*)$/);
+      const author=match?match[1].split(' · ')[0]:( c.created_by?.name||'Team');
+      const body=match?match[2]:rawText;
+      // Always use Notion's created_time for accurate relative display
+      const timeStr=c.created_time?fmtRelTime(c.created_time):'';
+      const isMe=author===currentSession?.name;
+      const actions=isMe?`<span style="display:flex;gap:4px;opacity:0.6;"><button onclick="startEditComment('${aa(c.id)}','${aa(pageId)}','${aa(body)}')" style="background:none;border:none;cursor:pointer;font-size:11px;color:#7F77DD;padding:0 2px;" title="Edit">✏️</button><button onclick="markCommentDeleted('${aa(c.id)}','${aa(pageId)}')" style="background:none;border:none;cursor:pointer;font-size:11px;color:#ef4444;padding:0 2px;" title="Delete">🗑</button></span>`:'';
+      return`<div class="comment" data-cid="${h(c.id)}"><div class="comment-author" style="display:flex;align-items:center;justify-content:space-between;"><span style="font-weight:600;">${h(author)}<span style="font-weight:400;color:#aaa;font-size:10px;"> · ${h(timeStr)}</span></span>${actions}</div><div class="comment-text">${h(body)}</div></div>`;
+    }).join('');
+  }catch(e){if(el)el.innerHTML='<div style="color:#aaa;font-size:12px;">Comments unavailable</div>';}
+}
+
+async function submitComment(pageId){
+  const inp=document.getElementById('dp-comment-input');
+  const text=(inp?.value||'').trim();if(!text)return;
+  const name=currentSession?.name||'Team';
+  const prefixed=`[${name}]: ${text}`;
+  inp.value='';inp.disabled=true;
+  try{await addComment(pageId,prefixed);toast('Comment added ✓');loadComments(pageId);}
+  catch(e){toast('Error: '+(e.message||e));}
+  finally{if(inp)inp.disabled=false;}
+}
+
+/* ── Modals ─────────────────────────────────────────────── */
+function openModal(type,prefill){
+  st.modalType=type;st.modalPrefill=prefill||{};
+  document.getElementById('modal-overlay').style.display='flex';
+  const box=document.getElementById('modal-box');
+  if(type==='task')box.innerHTML=taskForm();
+  else if(type==='wo')box.innerHTML=woForm();
+  else if(type==='cleaning'){box.innerHTML=cleaningForm();loadResvDropdown();}
+  else if(type==='payment')box.innerHTML=paymentForm();
+  else if(type==='newcleaner')box.innerHTML=newCleanerForm();
+  else if(type==='newcontractor')box.innerHTML=newContractorForm();
+}
+function closeModal(){document.getElementById('modal-overlay').style.display='none';}
+function openNewModal(){openModal(st.section==='workorders'?'wo':st.section==='cleaning'?'cleaning':'task');}
+function propOptions(){return st.properties.map(p=>`<option>${h(p.name)}</option>`).join('');}
+function teamOptions(){
+  const users=loginUsers.length?loginUsers.filter(u=>u.role!=='Cleaner'):TEAM;
+  return users.map(u=>`<option>${h(u.name)}</option>`).join('');
+}
+
+function taskForm(){
+  return`<div class="modal-title">New Task</div>
+    <div class="frow"><label class="flabel">Task name *</label><input class="finput" id="f-name" placeholder="e.g. Fix AC – Villa Marina"></div>
+    <div class="fgrid"><div class="frow"><label class="flabel">Property</label><select class="finput" id="f-prop"><option value="">— select —</option>${propOptions()}</select></div><div class="frow"><label class="flabel">Priority</label><select class="finput" id="f-prio"><option value="">— select —</option><option>High</option><option>Medium</option><option>Low</option></select></div></div>
+    <div class="fgrid"><div class="frow"><label class="flabel">Assign to</label><select class="finput" id="f-assignee"><option value="">— select —</option>${teamOptions()}</select></div><div class="frow"><label class="flabel">Deadline</label><input class="finput" type="date" id="f-deadline"></div></div>
+    <div class="frow"><label class="flabel">Description</label><textarea class="finput" id="f-desc" rows="3" placeholder="Optional details…"></textarea></div>
+    <div class="mactions"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-primary" id="submit-btn" onclick="submitTask()">Create Task</button></div>`;
+}
+
+function woForm(){
+  const p=st.modalPrefill;
+  const contrOpts=st.contractors.filter(c=>c.active).map(c=>`<option>${h(c.name)}${c.specialty?` (${c.specialty})`:''}</option>`).join('');
+  return`<div class="modal-title">New Work Order</div>
+    <div class="frow"><label class="flabel">Work order name *</label><input class="finput" id="f-name" placeholder="e.g. Plumbing repair – Maple View"></div>
+    <div class="fgrid"><div class="frow"><label class="flabel">Property</label><select class="finput" id="f-prop"><option value="">— select —</option>${propOptions()}</select></div><div class="frow"><label class="flabel">Status</label><select class="finput" id="f-status"><option>Draft</option><option>Active</option><option>In Progress</option></select></div></div>
+    <div class="frow"><label class="flabel">Contractor</label><select class="finput" id="f-contractor"><option value="">— select —</option>${contrOpts}<option value="__new__">+ Add new contractor…</option></select></div>
+    <div class="fgrid"><div class="frow"><label class="flabel">Supervisor</label><select class="finput" id="f-supervisor"><option value="">— select —</option>${teamOptions()}</select></div><div class="frow"><label class="flabel">Est. Cost ($)</label><input class="finput" type="number" id="f-cost" placeholder="0"></div></div>
+    <div class="frow"><label class="flabel">Est. Completion</label><input class="finput" type="date" id="f-completion"></div>
+    <div class="frow"><label class="flabel">Description</label><textarea class="finput" id="f-desc" rows="2" placeholder="Optional details…"></textarea></div>
+    ${p.linkedTaskId?`<input type="hidden" id="f-linked-task-id" value="${h(p.linkedTaskId)}"><input type="hidden" id="f-linked-task-name" value="${h(p.linkedTaskName||'')}"><div style="font-size:11px;color:#7F77DD;margin-bottom:8px;">Linked to task: <strong>${h(p.linkedTaskName||p.linkedTaskId)}</strong></div>`:''}
+    <div class="mactions"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-primary" id="submit-btn" onclick="submitWO()">Create Work Order</button></div>`;
+}
+
+function cleaningForm(){
+  const cleanerOpts=st.cleaners.filter(c=>c.active).map(c=>`<option>${h(c.name)}</option>`).join('');
+  return`<div class="modal-title">${t('New Cleaning Job')}</div>
+    <div class="frow"><label class="flabel">${t('Link to Guesty reservation')} <span style="font-size:10px;color:#aaa;">(${t('optional — auto-fills property & deadline')})</span></label><div style="display:flex;gap:6px;align-items:center;"><select class="finput" id="f-resv" onchange="onReservationSelect(this)" style="flex:1;"><option value="">— ${t('Loading…')} —</option></select><button class="btn btn-sm" type="button" onclick="loadResvDropdown()" title="Reload">↻</button></div><div id="f-resv-detail" style="font-size:11px;color:#7F77DD;margin-top:4px;min-height:14px;"></div></div>
+    <div class="frow"><label class="flabel">${t('Job name')} *</label><input class="finput" id="f-name" placeholder="e.g. Turnover – Villa Marina"></div>
+    <div class="fgrid"><div class="frow"><label class="flabel">${t('Property')}</label><select class="finput" id="f-prop"><option value="">— ${t('select')} —</option>${propOptions()}</select></div><div class="frow"><label class="flabel">${t('Type of clean')}</label><select class="finput" id="f-type"><option value="Regular Turnover">${t('Regular Turnover')}</option><option value="Deep Clean">${t('Deep Clean')}</option><option value="Move-in / Move-out">${t('Move-in / Move-out')}</option><option value="Other">${t('Other')}</option></select></div></div>
+    <div class="frow"><label class="flabel">${t('Cleaner')}</label><select class="finput" id="f-cleaner" onchange="if(this.value==='__new__')openModal('newcleaner')"><option value="">— ${t('select')} —</option>${cleanerOpts}<option value="__new__">+ ${t('Add new cleaner…')}</option></select></div>
+    <div class="fgrid"><div class="frow"><label class="flabel">${t('Agreed rate ($)')}</label><input class="finput" type="number" id="f-rate" placeholder="0"></div><div class="frow"><label class="flabel">${t('Deadline')}</label><input class="finput" type="date" id="f-deadline"></div></div>
+    <div class="frow"><label class="flabel">${t('Status')}</label><select class="finput" id="f-status"><option value="Scheduled">${t('Scheduled')}</option><option value="In Progress">${t('In Progress')}</option><option value="Complete">${t('Complete')}</option><option value="Cancelled">${t('Cancelled')}</option></select></div>
+    <div class="frow"><label class="flabel">${t('Notes')}</label><textarea class="finput" id="f-notes" rows="2" placeholder="${t('Access codes, special instructions…')}"></textarea></div>
+    <div class="mactions"><button class="btn" onclick="closeModal()">${t('Cancel')}</button><button class="btn btn-primary" id="submit-btn" onclick="submitCleaning()">${t('Create Cleaning Job')}</button></div>`;
+}
+
+function paymentForm(){
+  const p=st.modalPrefill;
+  return`<div class="modal-title">${t('Add Payment')}</div>
+    <div class="frow"><label class="flabel">${t('Payment name *')}</label><input class="finput" id="f-name" value="${h(p.woName?'Payment – '+p.woName:'')}"></div>
+    ${p.woName?`<div style="font-size:11px;color:#7F77DD;margin-bottom:10px;">${t('Work Orders').replace(/s$/,'')}: <strong>${h(p.woName)}</strong></div>`:''}
+    <div class="fgrid"><div class="frow"><label class="flabel">${t('Amount paid ($) *')}</label><input class="finput" type="number" id="f-amount" placeholder="0"></div><div class="frow"><label class="flabel">${t('Payment date')}</label><input class="finput" type="date" id="f-date" value="${new Date().toISOString().split('T')[0]}"></div></div>
+    <div class="frow"><label class="flabel">${t('Receipt image URL')}</label><input class="finput" id="f-receipt" placeholder="Paste image URL or leave blank"></div>
+    <div class="frow"><label class="flabel">${t('Notes')}</label><textarea class="finput" id="f-notes" rows="2" placeholder="e.g. Invoice #1234, deposit"></textarea></div>
+    <div class="mactions"><button class="btn" onclick="closeModal()">${t('Cancel')}</button><button class="btn btn-primary" id="submit-btn" onclick="submitPayment()">${t('Save Payment')}</button></div>`;
+}
+
+function newCleanerForm(){
+  return`<div class="modal-title">${t('Add New Cleaner')}</div>
+    <div class="frow"><label class="flabel">${t('Name *')}</label><input class="finput" id="f-name" placeholder="${t('Full name')}"></div>
+    <div class="fgrid"><div class="frow"><label class="flabel">${t('Phone')}</label><input class="finput" id="f-phone" type="tel"></div><div class="frow"><label class="flabel">${t('Default rate ($/job)')}</label><input class="finput" id="f-rate" type="number"></div></div>
+    <div class="frow"><label class="flabel">${t('Email')}</label><input class="finput" id="f-email" type="email"></div>
+    <div class="frow"><label class="flabel">${t('Notes')}</label><textarea class="finput" id="f-notes" rows="2"></textarea></div>
+    <div class="mactions"><button class="btn" onclick="openModal('cleaning')">← ${t('Back')}</button><button class="btn btn-primary" id="submit-btn" onclick="submitNewCleaner()">${t('Add Cleaner')}</button></div>`;
+}
+
+function newContractorForm(){
+  return`<div class="modal-title">Add New Contractor</div>
+    <div class="frow"><label class="flabel">Name / Company *</label><input class="finput" id="f-name"></div>
+    <div class="fgrid"><div class="frow"><label class="flabel">Specialty</label><select class="finput" id="f-specialty"><option>General</option><option>Plumbing</option><option>Electrical</option><option>Carpentry</option><option>HVAC</option><option>Painting</option><option>Landscaping</option><option>Other</option></select></div><div class="frow"><label class="flabel">Phone</label><input class="finput" id="f-phone" type="tel"></div></div>
+    <div class="frow"><label class="flabel">Email</label><input class="finput" id="f-email" type="email"></div>
+    <div class="frow"><label class="flabel">Notes</label><textarea class="finput" id="f-notes" rows="2"></textarea></div>
+    <div class="mactions"><button class="btn" onclick="openModal('wo',st.modalPrefill)">← Back</button><button class="btn btn-primary" id="submit-btn" onclick="submitNewContractor()">Add Contractor</button></div>`;
+}
+
+/* ── Submit functions ───────────────────────────────────── */
+async function submitTask(){
+  const name=document.getElementById('f-name')?.value.trim();if(!name){alert('Task name is required');return;}
+  const btn=document.getElementById('submit-btn');btn.textContent='Creating…';btn.disabled=true;
+  try{
+    const props={'Task Name':wp('title',name),'Status':wp('select','Open')};
+    const prop_=document.getElementById('f-prop')?.value,prio=document.getElementById('f-prio')?.value,assignee=document.getElementById('f-assignee')?.value,deadline=document.getElementById('f-deadline')?.value,desc=document.getElementById('f-desc')?.value.trim();
+    if(prop_)props.Property=wp('text',prop_);if(prio)props.Priority=wp('select',prio);if(assignee)props.Assignee=wp('text',assignee);if(deadline)props.Deadline=wp('date',deadline);if(desc)props.Description=wp('text',desc);
+    props['Created By']=wp('text',currentSession?.name||'');
+    await createPage(DBID_TASKS,props);closeModal();toast('Task created ✓');await loadAll();
+  }catch(e){alert('Error: '+(e.message||e));}
+  finally{btn.textContent='Create Task';btn.disabled=false;}
+}
+
+async function submitWO(){
+  const name=document.getElementById('f-name')?.value.trim();if(!name){alert('Work order name is required');return;}
+  const btn=document.getElementById('submit-btn');btn.textContent='Creating…';btn.disabled=true;
+  try{
+    const status=document.getElementById('f-status')?.value||'Draft';
+    const props={'Work Order Name':wp('title',name),'Status':wp('select',status)};
+    const prop_=document.getElementById('f-prop')?.value,contr=document.getElementById('f-contractor')?.value,super_=document.getElementById('f-supervisor')?.value,cost=document.getElementById('f-cost')?.value,completion=document.getElementById('f-completion')?.value,desc=document.getElementById('f-desc')?.value.trim();
+    const linkedTaskId=document.getElementById('f-linked-task-id')?.value,linkedTaskName=document.getElementById('f-linked-task-name')?.value;
+    if(prop_)props.Property=wp('text',prop_);if(contr&&contr!=='__new__')props.Contractor=wp('text',contr);if(super_)props.Supervisor=wp('text',super_);if(cost)props['Est. Cost']=wp('number',parseFloat(cost));if(completion)props['Est. Completion']=wp('date',completion);if(desc)props.Description=wp('text',desc);
+    if(linkedTaskId)props['Linked Task']=wp('text',JSON.stringify({id:linkedTaskId,name:linkedTaskName||linkedTaskId}));
+    const res=await createPage(DBID_WO,props);
+    if(linkedTaskId){
+      const task=st.tasks.find(t=>t.id===linkedTaskId);
+      if(task){const existing=Array.isArray(task.linkedWOs)?task.linkedWOs:[];const updated=[...existing,{id:res.id||'',name,status}];await updatePage(linkedTaskId,{'Linked Work Orders':wp('text',JSON.stringify(updated))}).catch(()=>{});}
+    }
+    closeModal();toast('Work order created ✓');await loadAll();
+  }catch(e){alert('Error: '+(e.message||e));}
+  finally{btn.textContent='Create Work Order';btn.disabled=false;}
+}
+
+async function submitCleaning(){
+  const name=document.getElementById('f-name')?.value.trim();if(!name){alert('Job name is required');return;}
+  const btn=document.getElementById('submit-btn');btn.textContent='Creating…';btn.disabled=true;
+  try{
+    const props={'Job Name':wp('title',name),'Status':wp('select',document.getElementById('f-status')?.value||'Scheduled')};
+    const prop_=document.getElementById('f-prop')?.value,cleaner=document.getElementById('f-cleaner')?.value,type=document.getElementById('f-type')?.value,rate=document.getElementById('f-rate')?.value,deadline=document.getElementById('f-deadline')?.value,notes=document.getElementById('f-notes')?.value.trim();
+    if(prop_)props.Property=wp('text',prop_);if(cleaner&&cleaner!=='__new__')props.Cleaner=wp('text',cleaner);if(type)props['Type of Clean']=wp('select',type);if(rate)props['Agreed Rate']=wp('number',parseFloat(rate));if(deadline)props.Deadline=wp('date',deadline);if(notes)props.Notes=wp('text',notes);
+    const resvSel=document.getElementById('f-resv');const resvJson=resvSel?.dataset?.resvJson;if(resvJson)props['Guesty Reservation']=wp('text',resvJson);
+    await createPage(DBID_CLEANING,props);closeModal();toast('Cleaning job created ✓');await loadAll();
+  }catch(e){alert('Error: '+(e.message||e));}
+  finally{btn.textContent='Create Cleaning Job';btn.disabled=false;}
+}
+
+async function submitPayment(){
+  const name=document.getElementById('f-name')?.value.trim(),amount=document.getElementById('f-amount')?.value;
+  if(!name||!amount){alert('Name and amount are required');return;}
+  const btn=document.getElementById('submit-btn');btn.textContent='Saving…';btn.disabled=true;
+  try{
+    const p=st.modalPrefill;
+    const props={'Payment Name':wp('title',name),'Amount Paid':wp('number',parseFloat(amount))};
+    const date=document.getElementById('f-date')?.value,notes=document.getElementById('f-notes')?.value.trim(),receipt=document.getElementById('f-receipt')?.value.trim();
+    if(date)props['Payment Date']=wp('date',date);if(notes)props.Notes=wp('text',notes);if(receipt)props['Receipt Image URL']=wp('text',receipt);
+    if(p.woId)props['Work Order']=wp('text',JSON.stringify({id:p.woId,name:p.woName||''}));
+    const res=await createPage(DBID_PAYMENTS,props);
+    if(p.woId){const wo=st.workOrders.find(w=>w.id===p.woId);if(wo){const existing=Array.isArray(wo.payments)?wo.payments:[];const updated=[...existing,{id:res.id||'',name,amount:parseFloat(amount)}];await updatePage(p.woId,{Payments:wp('text',JSON.stringify(updated))}).catch(()=>{});}}
+    closeModal();toast('Payment saved ✓');await loadAll();
+  }catch(e){alert('Error: '+(e.message||e));}
+  finally{btn.textContent='Save Payment';btn.disabled=false;}
+}
+
+async function submitNewCleaner(){
+  const name=document.getElementById('f-name')?.value.trim();if(!name){alert('Name is required');return;}
+  const btn=document.getElementById('submit-btn');btn.textContent='Saving…';btn.disabled=true;
+  try{
+    const props={Name:wp('title',name),Active:wp('checkbox',true)};
+    const phone=document.getElementById('f-phone')?.value.trim(),email=document.getElementById('f-email')?.value.trim(),rate=document.getElementById('f-rate')?.value,notes=document.getElementById('f-notes')?.value.trim();
+    if(phone)props.Phone={phone_number:phone};if(email)props.Email={email};if(rate)props['Default Rate']=wp('number',parseFloat(rate));if(notes)props.Notes=wp('text',notes);
+    await createPage(DBID_CLEANERS,props);toast('Cleaner added ✓');await loadAll();openModal('cleaning');
+  }catch(e){alert('Error: '+(e.message||e));}finally{btn.textContent='Add Cleaner';btn.disabled=false;}
+}
+
+async function submitNewContractor(){
+  const name=document.getElementById('f-name')?.value.trim();if(!name){alert('Name is required');return;}
+  const btn=document.getElementById('submit-btn');btn.textContent='Saving…';btn.disabled=true;
+  try{
+    const props={Name:wp('title',name),Active:wp('checkbox',true)};
+    const spec=document.getElementById('f-specialty')?.value,phone=document.getElementById('f-phone')?.value.trim(),email=document.getElementById('f-email')?.value.trim(),notes=document.getElementById('f-notes')?.value.trim();
+    if(spec)props.Specialty=wp('select',spec);if(phone)props.Phone={phone_number:phone};if(email)props.Email={email};if(notes)props.Notes=wp('text',notes);
+    await createPage(DBID_CONTRS,props);toast('Contractor added ✓');await loadAll();openModal('wo',st.modalPrefill);
+  }catch(e){alert('Error: '+(e.message||e));}finally{btn.textContent='Add Contractor';btn.disabled=false;}
+}
+
+/* ── Guesty ─────────────────────────────────────────────── */
+let gToken=null,gTokenExp=0;
+const G_API='https://open-api.guesty.com/v1';
+function _loadCachedGToken(){
+  try{const t=localStorage.getItem('g_tok'),e=parseInt(localStorage.getItem('g_tok_exp')||'0');if(t&&Date.now()<e){gToken=t;gTokenExp=e;}}catch(e){}
+}
+async function guestyToken(){
+  if(!gToken)_loadCachedGToken();
+  if(gToken&&Date.now()<gTokenExp)return gToken;
+  const res=await fetch('/.netlify/functions/guesty-token');
+  const d=await res.json();if(d.error)throw new Error(d.error);
+  gToken=d.access_token;gTokenExp=Date.now()+(d.expires_in-60)*1000;
+  try{localStorage.setItem('g_tok',gToken);localStorage.setItem('g_tok_exp',gTokenExp.toString());}catch(e){}
+  return gToken;
+}
+async function gGet(path){const tok=await guestyToken();const r=await fetch(G_API+path,{headers:{Authorization:`Bearer ${tok}`}});if(!r.ok)throw new Error(`${path} → ${r.status}`);return r.json();}
+const isoD=d=>d.toISOString().split('T')[0];
+const addDays=(d,n)=>{const r=new Date(d);r.setDate(r.getDate()+n);return r;};
+
+// Format Guesty listing address as "City StreetNum/Apt" (e.g. "Be'er Sheva 4/5")
+function guestyAddress(r){
+  const addr=r.listing?.address||r.listing?.complexAddress||{};
+  const city=addr.city||addr.neighborhood||'';
+  const street=addr.street||'';
+  // extract number from street (e.g. "Herzl 12" → "12")
+  const numMatch=street.match(/\d+/);const streetNum=numMatch?numMatch[0]:'';
+  const apt=addr.apt||addr.unit||addr.unitNumber||'';
+  if(city&&streetNum)return apt?`${city} ${streetNum}/${apt}`:`${city} ${streetNum}`;
+  if(city&&street)return apt?`${city}, ${street}/${apt}`:`${city}, ${street}`;
+  return r.listing?.nickname||r.listing?.title||'Property';
+}
+
+/* ── Property Status Board ──────────────────────────────── */
+function setGuestyPanelTab(tab){
+  propBoardTab=tab;localStorage.setItem('pb_tab',tab);
+  document.getElementById('gpt-status')?.classList.toggle('active',tab==='status');
+  document.getElementById('gpt-calendar')?.classList.toggle('active',tab==='calendar');
+  if(tab==='status')renderPropStatusBoard();
+  else loadGuestyCalendar();
+}
+function renderPropStatusBoard(){
+  const el=document.getElementById('guesty-panel-content');if(!el)return;
+  const COLS=[
+    {key:'Dirty',color:'#ef4444',emoji:'🔴'},
+    {key:'Unsure',color:'#eab308',emoji:'🟡'},
+    {key:'Needs Inspection',color:'#f97316',emoji:'🟠'},
+    {key:'Clean',color:'#22c55e',emoji:'🟢'},
+  ];
+  if(!st.properties.length){el.innerHTML='<div style="color:#aaa;font-size:12px;padding:8px 0;">No properties loaded yet.</div>';return;}
+  el.innerHTML=`<div class="prop-board">${COLS.map(col=>{
+    const props=st.properties.filter(p=>(p.propStatus||'Dirty')===col.key);
+    return`<div class="prop-col"><div class="prop-col-head" style="border-top-color:${col.color};background:${col.color}10;">
+      <span class="prop-col-title">${col.emoji} ${t(col.key)}</span><span class="kcnt">${props.length}</span></div>
+      ${props.map(p=>`<div class="prop-item" onclick="openPropStatusModal('${aa(p.id)}','${aa(p.name)}','${aa(p.propStatus||'Dirty')}')"><div class="prop-item-name">${h(p.name)}</div></div>`).join('')||`<div style="font-size:11px;color:#ccc;text-align:center;padding:8px;">—</div>`}
+    </div>`;
+  }).join('')}</div>`;
+}
+function openPropStatusModal(id,name,cur){
+  document.getElementById('modal-overlay').style.display='flex';
+  const box=document.getElementById('modal-box');
+  const STATUSES=['Dirty','Unsure','Needs Inspection','Clean'];
+  const COLORS={Dirty:'#ef4444',Unsure:'#eab308','Needs Inspection':'#f97316',Clean:'#22c55e'};
+  box.innerHTML=`<div class="modal-title">🏠 ${h(name)}</div>
+    <div style="font-size:13px;color:#888;margin-bottom:14px;">Tap a status to update:</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      ${STATUSES.map(s=>`<button onclick="updatePropStatus('${aa(id)}','${aa(s)}')" style="padding:13px 16px;border:2px solid ${s===cur?COLORS[s]:'#e5e4e0'};border-radius:10px;background:${s===cur?COLORS[s]+'18':'#fff'};text-align:left;cursor:pointer;font-size:14px;font-family:inherit;display:flex;align-items:center;gap:10px;font-weight:${s===cur?'600':'400'};">
+        <span style="width:10px;height:10px;border-radius:50%;background:${COLORS[s]};display:inline-block;flex-shrink:0;"></span>${t(s)}${s===cur?' <span style="font-size:10px;color:#aaa;margin-left:auto;">current</span>':''}
+      </button>`).join('')}
+    </div>
+    <div class="mactions" style="margin-top:12px;"><button class="btn" onclick="closeModal()">Cancel</button></div>`;
+}
+async function updatePropStatus(id,newStatus){
+  try{
+    await updatePage(id,{'Property Status':wp('select',newStatus)});
+    const prop=st.properties.find(p=>p.id===id);if(prop)prop.propStatus=newStatus;
+    closeModal();toast('Property status updated ✓');renderPropStatusBoard();
+  }catch(e){toast('Error: '+(e.message||e));}
+}
+
+/* ── Guesty Calendar (expandable days) ─────────────────── */
+async function loadGuestyCalendar(){
+  const el=document.getElementById('guesty-panel-content');if(!el)return;
+  el.innerHTML=`<div class="guesty-panel-stats"><div class="guesty-dot loading" id="guesty-dot"></div><span id="guesty-status-text">Connecting to Guesty…</span></div><div id="guesty-cal"></div>`;
+  const dot=document.getElementById('guesty-dot'),stxt=document.getElementById('guesty-status-text'),gcal=document.getElementById('guesty-cal');
+  try{
+    const today=new Date();today.setHours(0,0,0,0);
+    const todayStr=isoD(today),endStr=isoD(addDays(today,14));
+    const [ciR,coR]=await Promise.all([
+      gGet(`/reservations?checkInDateFrom=${todayStr}&checkInDateTo=${endStr}&status=confirmed&limit=200`),
+      gGet(`/reservations?checkOutDateFrom=${todayStr}&checkOutDateTo=${endStr}&status=confirmed&limit=200`)
+    ]);
+    cachedGuestyData={ci:ciR.results||ciR.data||[],co:coR.results||coR.data||[],todayStr,today};
+    dot.className='guesty-dot';stxt.textContent=`Guesty — live · ${cachedGuestyData.ci.length+cachedGuestyData.co.length} movements next 14 days`;
+    renderGuestyCalendar(gcal);
+  }catch(e){if(dot)dot.className='guesty-dot error';if(stxt)stxt.textContent='Guesty unavailable';if(gcal)gcal.innerHTML=`<div class="guesty-error" style="color:#999;font-size:11px;padding:4px 0;">${h(e.message)}</div>`;}
+}
+function renderGuestyCalendar(gcal){
+  if(!gcal||!cachedGuestyData)return;
+  const {ci,co,todayStr,today}=cachedGuestyData;
+  const dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const days=[];for(let i=0;i<14;i++)days.push(addDays(today,i));
+  gcal.innerHTML='<div class="cal-strip" style="padding:6px 0 10px;">'+days.map(day=>{
+    const ds=isoD(day),isToday=ds===todayStr,isExp=!!expandedCalDays[ds];
+    const ins=ci.filter(r=>(r.checkIn||'').startsWith(ds));
+    const outs=co.filter(r=>(r.checkOut||'').startsWith(ds));
+    const total=ins.length+outs.length;
+    const evHtml=[
+      ...ins.map(r=>`<div class="cal-ev ev-in" style="white-space:normal;">↓ ${h(guestyAddress(r))}</div>`),
+      ...outs.map(r=>`<div class="cal-ev ev-out" style="white-space:normal;">↑ ${h(guestyAddress(r))}</div>`)
+    ];
+    const preview=evHtml.slice(0,isExp?999:2).join('');
+    const moreBtn=total>2&&!isExp?`<div onclick="expandCalDay('${ds}')" style="font-size:9px;color:#7F77DD;cursor:pointer;margin-top:2px;">+${total-2} more…</div>`:
+      total>2&&isExp?`<div onclick="expandCalDay('${ds}')" style="font-size:9px;color:#aaa;cursor:pointer;margin-top:2px;">Show less</div>`:'';
+    return`<div class="cal-day${isToday?' today':''}" style="min-width:90px;cursor:default;">
+      <div class="cal-dn">${dayNames[day.getDay()]}</div>
+      <div class="cal-dd">${day.getDate()}</div>
+      ${preview||'<div style="font-size:9px;color:#ddd;padding-top:2px;">—</div>'}
+      ${moreBtn}
+    </div>`;
+  }).join('')+'</div>';
+}
+function expandCalDay(ds){
+  expandedCalDays[ds]=!expandedCalDays[ds];
+  renderGuestyCalendar(document.getElementById('guesty-cal'));
+}
+// Keep old loadGuesty name as alias for backward compat
+async function loadGuesty(){if(propBoardTab==='calendar')await loadGuestyCalendar();else renderPropStatusBoard();}
+
+/* ── Reservation picker ─────────────────────────────────── */
+let cachedResvs=[];
+async function loadResvDropdown(){
+  const sel=document.getElementById('f-resv');if(!sel)return;
+  try{
+    const today=new Date();today.setHours(0,0,0,0);
+    const res=await gGet(`/reservations?checkOutDateFrom=${isoD(today)}&checkOutDateTo=${isoD(addDays(today,60))}&status=confirmed&limit=100`);
+    cachedResvs=(res.results||res.data||[]).sort((a,b)=>(a.checkOut||'').localeCompare(b.checkOut||''));
+    if(!sel)return;
+    if(!cachedResvs.length){sel.innerHTML='<option value="">No upcoming checkouts</option>';return;}
+    sel.innerHTML='<option value="">— skip / no reservation —</option>'+cachedResvs.map((r,i)=>{
+      const addr=guestyAddress(r);
+      const guest=(r.guest||r.guestInfo||{});const gName=`${guest.firstName||''} ${guest.lastName||''}`.trim()||'Guest';
+      const co=(r.checkOut||'').split('T')[0];const coFmt=co?new Date(co+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}):'';
+      return`<option value="${i}">↑ ${coFmt} · ${h(addr)} · ${h(gName)}</option>`;
+    }).join('');
+  }catch(e){if(sel)sel.innerHTML='<option value="">Guesty unavailable — fill manually</option>';}
+}
+function onReservationSelect(sel){
+  const idx=parseInt(sel.value);const detail=document.getElementById('f-resv-detail');
+  if(isNaN(idx)||!cachedResvs[idx]){if(detail)detail.textContent='';return;}
+  const r=cachedResvs[idx];
+  const addr=guestyAddress(r);
+  const guest=(r.guest||r.guestInfo||{});const gName=`${guest.firstName||''} ${guest.lastName||''}`.trim()||'Guest';
+  const co=(r.checkOut||'').split('T')[0];const ci=(r.checkIn||'').split('T')[0];
+  const listingName=r.listing?.nickname||r.listing?.title||'';
+  const fName=document.getElementById('f-name');const fProp=document.getElementById('f-prop');
+  const fDeadline=document.getElementById('f-deadline');const fType=document.getElementById('f-type');
+  if(fName&&!fName.value)fName.value=`Turnover – ${addr}`;
+  if(fDeadline)fDeadline.value=co;if(fType)fType.value='Regular Turnover';
+  // Auto-suggest property: try matching by listing name, city, or address tokens
+  if(fProp&&st.properties.length){
+    const addrLower=addr.toLowerCase();const nameLower=listingName.toLowerCase();
+    const city=(r.listing?.address?.city||'').toLowerCase();
+    let match=st.properties.find(p=>{
+      const pn=p.name.toLowerCase();
+      return pn===nameLower||pn.includes(nameLower.split(' ')[0])||
+        (city&&pn.includes(city))||addrLower.includes(pn.split(' ')[0]);
+    });
+    if(match)fProp.value=match.name;
+  }
+  if(detail)detail.innerHTML=`<span style="color:#7F77DD;font-weight:500;">${h(addr)}</span> · ${h(gName)} · ${ci?new Date(ci+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}):''} → ${co?new Date(co+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}):''} <span style="color:#aaa;font-size:10px;">ID: ${h(r.id)}</span>`;
+  sel.dataset.resvJson=JSON.stringify({id:r.id,listingName:addr,guestName:gName,checkIn:ci,checkOut:co});
+}
+
+/* ── Notifications ──────────────────────────────────────── */
+let notifState={items:[],loading:false,lastSeen:parseInt(localStorage.getItem('notif_last_seen')||'0')};
+let archivedNotifIds=JSON.parse(localStorage.getItem('archived_notifs')||'[]');
+function archiveNotif(nid,e){
+  e.stopPropagation();
+  if(!archivedNotifIds.includes(nid))archivedNotifIds.push(nid);
+  localStorage.setItem('archived_notifs',JSON.stringify(archivedNotifIds));
+  renderSection();
+}
+function clearAllNotifs(){
+  archivedNotifIds=[...archivedNotifIds,...notifState.items.map(n=>n.id)];
+  localStorage.setItem('archived_notifs',JSON.stringify(archivedNotifIds));
+  renderSection();
+}
+function renderNotificationsView(){
+  if(notifState.loading)return'<div class="loading-msg">Loading notifications…</div>';
+  const visible=notifState.items.filter(n=>!archivedNotifIds.includes(n.id));
+  const newCount=visible.filter(n=>n.ts>notifState.lastSeen).length;
+  if(!visible.length)return`<div class="empty"><div class="empty-icon">🔔</div><div>All caught up!</div></div>`;
+  return`<div>
+    <div style="display:flex;justify-content:flex-end;margin-bottom:10px;">
+      <button class="btn btn-sm" onclick="clearAllNotifs()">Archive all</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:6px;">${visible.map(n=>{
+    const isNew=n.ts>notifState.lastSeen;
+    return`<div class="list-item" style="${isNew?'border-left:3px solid #7F77DD;background:#faf9ff;':''}" onclick="openDetail('${n.type}','${aa(n.itemId)}')">
+      <div class="list-item-main">
+        <div class="list-item-title" style="display:flex;align-items:center;gap:6px;">
+          <span>${n.icon}</span><span>${h(n.title)}</span>${isNew?`<span style="background:#7F77DD;color:#fff;font-size:9px;padding:1px 6px;border-radius:99px;font-weight:700;">NEW</span>`:''}
+        </div>
+        <div style="font-size:11px;color:#888;margin-top:2px;">${h(n.detail)}</div>
+        <div style="font-size:10px;color:#bbb;margin-top:2px;">${h(n.timeStr)}</div>
+      </div>
+      <button onclick="archiveNotif('${aa(n.id)}',event)" style="background:none;border:none;cursor:pointer;color:#ccc;font-size:14px;padding:4px 6px;flex-shrink:0;" title="Archive">✕</button>
+    </div>`;
+  }).join('')}</div></div>`;
+}
+async function loadNotifications(){
+  const user=currentSession?.name||'';
+  notifState.loading=true;renderSection();
+  const items=[];
+  try{
+    // Tasks assigned to me — record first-seen time so "received" is stable
+    const myTasks=st.tasks.filter(t=>t.assignee&&t.assignee.toLowerCase().includes(user.toLowerCase()));
+    let tsChanged=false;
+    myTasks.forEach(t=>{
+      const key=`task-${t.id}`;
+      if(!notifTimestamps[key]){notifTimestamps[key]=Date.now();tsChanged=true;}
+      const ts=notifTimestamps[key];
+      items.push({
+        id:key,type:'task',itemId:t.id,icon:'📋',
+        title:`Task assigned to you: ${t.name}`,
+        detail:`${t.property?t.property+' · ':''}${t.status}${t.deadline?' · Due '+fmtRelDate(t.deadline):''}`,
+        ts,timeStr:fmtRelTime(new Date(ts).toISOString()),
+      });
+    });
+    if(tsChanged)localStorage.setItem('notif_ts',JSON.stringify(notifTimestamps));
+    // Fetch comments on tasks/WOs involving current user (limit API calls)
+    const myItems=[
+      ...st.tasks.filter(t=>t.assignee&&t.assignee.toLowerCase().includes(user.toLowerCase())),
+      ...st.workOrders.filter(w=>w.supervisor&&w.supervisor.toLowerCase().includes(user.toLowerCase())),
+    ].slice(0,10);
+    await Promise.all(myItems.map(async item=>{
+      try{
+        const res=await getComments(item.id);
+        (res.results||[]).filter(c=>!deletedCommentIds.includes(c.id)).forEach(c=>{
+          const rawText=(c.rich_text||[]).map(rt=>rt.plain_text||rt.text?.content||'').join('');
+          const match=rawText.match(/^\[([^\]]+?)\]:\s([\s\S]*)$/);
+          const author=match?match[1].split(' · ')[0]:(c.created_by?.name||'Team');
+          const body=match?match[2]:rawText;
+          const ts=c.created_time?new Date(c.created_time).getTime():0;
+          if(author!==user){
+            items.push({
+              id:`comment-${c.id}`,
+              type:item.status!==undefined?'task':'wo',
+              itemId:item.id,icon:'💬',
+              title:`${author} commented on "${item.name}"`,
+              detail:body.substring(0,80)+(body.length>80?'…':''),
+              ts,timeStr:c.created_time?fmtRelTime(c.created_time):'',
+            });
+          }
+        });
+      }catch{}
+    }));
+    // Operations Manager: receive activity for ALL cleaning jobs
+    if(currentSession?.role==='Operations Manager'){
+      let opsChanged=false;
+      st.cleaningJobs.forEach(j=>{
+        if(j.status==='Accepted'){
+          const key=`accept-${j.id}`;
+          if(!notifTimestamps[key]){notifTimestamps[key]=Date.now();opsChanged=true;}
+          items.push({id:key,type:'cleaning',itemId:j.id,icon:'✅',
+            title:`Job accepted: ${j.name}`,
+            detail:`${j.cleaner?j.cleaner+' · ':''}${j.property||''}`,
+            ts:notifTimestamps[key],timeStr:fmtRelTime(new Date(notifTimestamps[key]).toISOString())});
+        }
+        if(j.status==='Complete'){
+          const key=`complete-${j.id}`;
+          if(!notifTimestamps[key]){notifTimestamps[key]=Date.now();opsChanged=true;}
+          items.push({id:key,type:'cleaning',itemId:j.id,icon:'🏁',
+            title:`Job completed: ${j.name}`,
+            detail:`${j.cleaner?j.cleaner+' · ':''}${j.property||''}`,
+            ts:notifTimestamps[key],timeStr:fmtRelTime(new Date(notifTimestamps[key]).toISOString())});
+        }
+      });
+      if(opsChanged)localStorage.setItem('notif_ts',JSON.stringify(notifTimestamps));
+    }
+    items.sort((a,b)=>b.ts-a.ts);
+  }catch(e){console.error('notifications',e);}
+  notifState.items=items;
+  notifState.loading=false;
+  // Update unread badge
+  updateNotifBadge();
+  // Mark all as seen after a short delay (so NEW labels show briefly)
+  setTimeout(()=>{
+    notifState.lastSeen=Date.now();
+    localStorage.setItem('notif_last_seen',notifState.lastSeen.toString());
+    renderSection();
+  },3000);
+  renderSection();
+}
+function updateNotifBadge(){
+  const visible=notifState.items.filter(n=>!archivedNotifIds.includes(n.id));
+  const newCount=visible.filter(n=>n.ts>notifState.lastSeen).length;
+  const badge=document.getElementById('notif-badge-sb');
+  if(badge)badge.textContent=newCount>0?`Notifications (${newCount})`:'Notifications';
+}
+
+/* ── Cleaner view ───────────────────────────────────────── */
+let _cleanerJobs=[]; // cached for switching tabs without reload
+
+function launchCleanerView(){
+  document.getElementById('cleaner-view').style.display='flex';
+  const avEl=document.getElementById('cv-av');
+  avEl.className=`cleaner-user-av ${COLOR_CLS[currentSession.color]||'lav-green'}`;
+  avEl.textContent=currentSession.initials;
+  document.getElementById('cv-name').textContent=currentSession.name;
+  applyMobile();loadCleanerJobs();
+}
+function setCleanerTab(tab){
+  cleanerViewTab=tab;localStorage.setItem('cv_tab',tab);
+  document.getElementById('cv-tab-dash')?.classList.toggle('active',tab==='dash');
+  document.getElementById('cv-tab-jobs')?.classList.toggle('active',tab==='jobs');
+  window.scrollTo(0,0);document.getElementById('cv-content')?.scrollTo(0,0);
+  if(_cleanerJobs.length)renderCleanerContent();
+}
+async function loadCleanerJobs(){
+  const el=document.getElementById('cv-content');
+  el.innerHTML='<div style="text-align:center;padding:40px;color:#aaa;">'+t('Loading…')+'</div>';
+  try{
+    const pages=await queryDB(DBID_CLEANING);
+    _cleanerJobs=pages.map(parseCleaning).filter(j=>j.cleaner&&j.cleaner.toLowerCase().includes(currentSession.name.toLowerCase()));
+    renderCleanerContent();
+  }catch(e){el.innerHTML=`<div style="text-align:center;padding:40px;color:#aaa;">Error: ${h(e.message)}</div>`;}
+}
+function renderCleanerContent(){
+  if(cleanerViewTab==='dash')renderCleanerDashboard();
+  else renderCleanerJobsList();
+}
+
+/* ── Cleaner Dashboard tab ──────────────────────────────── */
+function renderCleanerDashboard(){
+  const el=document.getElementById('cv-content');
+  const jobs=_cleanerJobs;
+  const completed=jobs.filter(j=>j.status==='Complete');
+  const upcoming=jobs.filter(j=>j.status!=='Complete'&&j.status!=='Cancelled');
+  const totalEarned=completed.reduce((s,j)=>s+(j.rate||0),0);
+  const paid=completed.filter(j=>j.paid).reduce((s,j)=>s+(j.rate||0),0);
+  const outstanding=completed.filter(j=>!j.paid).reduce((s,j)=>s+(j.rate||0),0);
+
+  // Earnings chart — last 8 weeks
+  const now=new Date();now.setHours(0,0,0,0);
+  const weeks=[];
+  for(let i=7;i>=0;i--){
+    const wStart=new Date(now);wStart.setDate(wStart.getDate()-wStart.getDay()-i*7);
+    const wEnd=new Date(wStart);wEnd.setDate(wEnd.getDate()+7);
+    const wJobs=completed.filter(j=>{if(!j.deadline)return false;const d=new Date(j.deadline+'T00:00:00');return d>=wStart&&d<wEnd;});
+    const earned=wJobs.reduce((s,j)=>s+(j.rate||0),0);
+    const wpaid=wJobs.filter(j=>j.paid).reduce((s,j)=>s+(j.rate||0),0);
+    const label=wStart.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    weeks.push({label,earned,paid:wpaid});
+  }
+  const maxEarned=Math.max(...weeks.map(w=>w.earned),1);
+  const chartHtml=`<div class="earn-chart">
+    <div style="font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">${t('My Earnings')} — last 8 weeks</div>
+    <div class="earn-bars">${weeks.map(w=>{
+      const barH=Math.round((w.earned/maxEarned)*68)||2;
+      const paidH=Math.round((w.paid/maxEarned)*68)||0;
+      return`<div class="earn-bar-col">
+        <div class="earn-bar-bg" style="height:${barH}px;">
+          <div class="earn-bar-fill" style="height:${paidH}px;"></div>
+        </div>
+        <div class="earn-bar-lbl">${w.label}</div>
+      </div>`;
+    }).join('')}</div>
+    <div style="display:flex;gap:12px;margin-top:5px;font-size:10px;color:#888;">
+      <div><span style="display:inline-block;width:8px;height:8px;background:#e5e4e0;border-radius:2px;margin-right:3px;"></span>${t('Earned')}</div>
+      <div><span style="display:inline-block;width:8px;height:8px;background:#22c55e;border-radius:2px;margin-right:3px;"></span>${t('Paid')}</div>
+    </div>
+  </div>`;
+
+  // Recent jobs preview
+  const recentJobs=sortByDeadline(upcoming).slice(0,5);
+  const jobsHtml=recentJobs.length?`
+    <div style="margin-bottom:4px;font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.05em;">${t('Upcoming Jobs')}</div>
+    ${recentJobs.map(j=>`<div class="job-card" style="margin-bottom:8px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+        <div class="job-card-prop">${h(j.property||'—')}</div>
+        ${statusTag(j.status)}
+      </div>
+      <div class="job-card-title" style="font-size:14px;">${h(j.name)}</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px;">
+        <span class="due">${j.deadline?fmtRelDate(j.deadline):''}</span>
+        ${j.rate!=null?`<span style="font-size:15px;font-weight:700;color:#166534;">${fmtMoney(j.rate)}</span>`:''}
+      </div>
+    </div>`).join('')}`
+    :'<div style="text-align:center;padding:20px;color:#aaa;font-size:13px;">'+t('All clear for today 🎉')+'</div>';
+
+  el.innerHTML=`
+    <div class="cv-summary-grid">
+      <div class="cv-stat"><div class="cv-stat-n">${upcoming.length}</div><div class="cv-stat-l">${t('Upcoming')}</div></div>
+      <div class="cv-stat owed"><div class="cv-stat-n">${fmtMoney(outstanding)}</div><div class="cv-stat-l">${t('Outstanding')}</div></div>
+      <div class="cv-stat earned"><div class="cv-stat-n">${fmtMoney(totalEarned)}</div><div class="cv-stat-l">${t('Total Earned')}</div></div>
+    </div>
+    ${chartHtml}
+    ${jobsHtml}`;
+}
+
+/* ── Cleaner Jobs tab ───────────────────────────────────── */
+function renderCleanerJobsList(){
+  const el=document.getElementById('cv-content');
+  const jobs=_cleanerJobs;
+  const today=new Date();today.setHours(0,0,0,0);
+  const todayEnd=new Date(today.getTime()+86400000);
+  const in7=new Date(today.getTime()+7*86400000);
+
+  const todayJ=sortByDeadline(jobs.filter(j=>!['Complete','Cancelled'].includes(j.status)&&j.deadline&&new Date(j.deadline+'T00:00:00')>=today&&new Date(j.deadline+'T00:00:00')<todayEnd));
+  const upcoming=sortByDeadline(jobs.filter(j=>!['Complete','Cancelled'].includes(j.status)&&j.deadline&&new Date(j.deadline+'T00:00:00')>=todayEnd));
+  const noDate=jobs.filter(j=>!['Complete','Cancelled'].includes(j.status)&&!j.deadline);
+  const done=jobs.filter(j=>j.status==='Complete');
+  const cancelled=jobs.filter(j=>j.status==='Cancelled');
+
+  function jCard(j){
+    const isAccepted=j.status==='Accepted';
+    const isDone=j.status==='Complete';
+    const isSched=j.status==='Scheduled';
+    const noteOpen=cleanerNoteOpen[j.id];
+    return`<div class="job-card${isDone?' done-card':''}">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;">
+        <div class="job-card-prop">${h(j.property||'—')}</div>
+        ${statusTag(j.status)}
+      </div>
+      <div class="job-card-title">${h(j.name)}</div>
+      <div class="job-card-meta">
+        ${j.type?`<span class="tag tag-blue">${h(j.type)}</span>`:''}
+        <span class="due">${j.deadline?fmtRelDate(j.deadline):''}</span>
+        ${j.rate!=null?`<span style="font-size:13px;font-weight:700;color:#166534;">${fmtMoney(j.rate)}</span>`:''}
+        ${j.gResv?`<span class="tag tag-purple">🔗 ${h(j.gResv.guestName||'Guest')}</span>`:''}
+      </div>
+      <div class="job-card-actions">
+        ${isSched?`<button class="job-accept-btn" onclick="cleanerAcceptJob('${aa(j.id)}')">✓ ${t('Accept')}</button>`:''}
+        ${isAccepted?`<button class="job-done-btn" onclick="showChecklistModal('${aa(j.id)}','${aa(j.name)}','${aa(j.property||'')}')">✓ ${t('Mark done')}</button>`:''}
+        ${isDone?`<button class="job-done-btn undo-btn" onclick="cleanerUndoDone('${aa(j.id)}')">${t('Undo')}</button>`:''}
+        ${(isSched||isAccepted)?`<button class="job-note-btn" onclick="cleanerToggleNote('${aa(j.id)}')">📝</button>`:''}
+      </div>
+      ${noteOpen&&!isDone?`<div class="job-note-area"><textarea class="job-note-input" id="note-${aa(j.id)}" placeholder="Add a note…"></textarea><button class="job-note-save" onclick="cleanerSaveNote('${aa(j.id)}')">Save</button></div>`:''}
+    </div>`;
+  }
+  function sec(title,items,urgent){
+    if(!items.length)return'';
+    const badge=`<span class="cleaner-sec-badge${urgent?' urgent':''}">${items.length}</span>`;
+    return`<div class="cleaner-section"><div class="cleaner-sec-head"><span class="cleaner-sec-title">${title}</span>${badge}</div>${items.map(jCard).join('')}</div>`;
+  }
+  const html=(todayJ.length?sec(t("Today's jobs"),todayJ,true):'<div class="cleaner-section"><div class="cleaner-sec-head"><span class="cleaner-sec-title">'+t("Today's jobs")+'</span></div><div style="text-align:center;padding:16px;color:#aaa;font-size:13px;">'+t('All clear for today 🎉')+'</div></div>')+
+    sec(t('Next 7 days'),upcoming,false)+sec(t('No date'),noDate,false)+
+    (done.length?sec(t('✓ Done'),done,false):'')+
+    (cancelled.length?sec(t('Cancelled'),cancelled,false):'');
+  el.innerHTML=html||`<div class="empty"><div class="empty-icon">🧹</div><div>${t('No cleaning jobs found.')}</div></div>`;
+}
+
+async function cleanerAcceptJob(id){
+  try{
+    await updatePage(id,{Status:wp('select','Accepted')});
+    // Record timestamp for Ops Manager notifications
+    const key=`accept-${id}`;notifTimestamps[key]=Date.now();
+    localStorage.setItem('notif_ts',JSON.stringify(notifTimestamps));
+    toast('Job accepted ✓');
+    const j=_cleanerJobs.find(j=>j.id===id);if(j)j.status='Accepted';
+    renderCleanerContent();
+  }catch(e){toast('Error: '+(e.message||e));}
+}
+async function cleanerUndoDone(id){
+  try{await updatePage(id,{Status:wp('select','Accepted')});toast('Moved back to Accepted ✓');const j=_cleanerJobs.find(j=>j.id===id);if(j)j.status='Accepted';renderCleanerContent();}catch(e){toast('Error: '+(e.message||e));}
+}
+function cleanerToggleNote(id){cleanerNoteOpen[id]=!cleanerNoteOpen[id];renderCleanerContent();}
+async function cleanerSaveNote(id){
+  const txt=(document.getElementById('note-'+id)||{}).value?.trim()||'';if(!txt)return;
+  try{await updatePage(id,{Notes:wp('text',txt)});cleanerNoteOpen[id]=false;toast('Note saved ✓');renderCleanerContent();}catch(e){toast('Error: '+(e.message||e));}
+}
+
+/* ── Section Checklist Modal ────────────────────────────── */
+const CHECKLIST_SECTIONS=[
+  {icon:'🍳',title:'Kitchen',items:[
+    {q:'Clean kitchen towels set up?'},
+    {q:'Dishes clean and put away?'},
+    {q:'Coffee station set up?',hint:'Specify anything missing?',noteKey:true},
+    {q:'All kitchen surfaces cleaned?'},
+    {q:'Fridge clean?',hint:'All old food discarded'},
+    {q:'Oven clean?'},
+    {q:'Microwave clean?'},
+    {q:'Kettle clean?'},
+    {q:'Kitchen cabinets & drawers clean & tidy?',hint:'All bags and unrelated items discarded'},
+    {q:'Clean rag & sponges set?'},
+    {q:'Paper towel roll stocked?'},
+    {q:'Dishsoap full?'},
+    {q:'Dishwasher pods provided?'},
+  ]},
+  {icon:'🚿',title:'Bathrooms',items:[
+    {q:'Handsoap filled in all bathrooms?'},
+    {q:'Shampoo, conditioner & body soap in all bathrooms?'},
+    {q:'Bathroom vanity surfaces & drawers/cabinets cleaned?'},
+    {q:'All mirrors clean?'},
+    {q:'All toilets clean?'},
+    {q:'All shower & sink drains clear?',hint:'No hair or gunk'},
+    {q:'All water drains 🌀 working well?'},
+    {q:'All shower glass doors clean?'},
+    {q:'All water taps 🚿🚰 running well?'},
+    {q:'Enough toilet paper in all bathrooms?'},
+    {q:'Clean hand towels in bathrooms?'},
+    {q:'Clean body towels for each guest?'},
+    {q:'Laundry pods by washing machine?'},
+  ]},
+  {icon:'🛏',title:'Bedrooms, Living & Outdoor',items:[
+    {q:'All floors swept & mopped?'},
+    {q:'All beds made?'},
+    {q:'Bedside tables & drawers clean?'},
+    {q:'Bedroom closets tidy?'},
+    {q:'Sofa surfaces clean, living area tidy?'},
+    {q:'Dining table wiped down?'},
+    {q:'Dining chairs organized & tidy?'},
+    {q:'All garbage bins cleaned and set with new trash bag?'},
+    {q:'Spare trash bags under sink?'},
+    {q:'Mirpeset clean?'},
+    {q:'Outdoor/garden area swept & clean?'},
+  ]},
+  {icon:'💡',title:'Lighting & Tech',items:[
+    {q:'Mood lighting on?'},
+    {q:'Light bulbs all work?'},
+    {q:'TV remotes all work?'},
+    {q:'AirCon remotes all work?'},
+    {q:'Boiler timer set?'},
+  ]},
+];
+// flatten for easy total count
+function clAllItems(){return CHECKLIST_SECTIONS.flatMap((s,si)=>s.items.map((it,ii)=>({...it,si,ii,key:`${si}_${ii}`})));}
+
+function showChecklistModal(jobId,jobName,propertyName){
+  checklistJobId=jobId;checklistSection=0;checklistAnswers={jobName,propertyName};
+  renderChecklistSection();
+}
+function renderChecklistSection(){
+  let overlay=document.getElementById('checklist-overlay');
+  if(!overlay){overlay=document.createElement('div');overlay.id='checklist-overlay';overlay.className='checklist-overlay';document.body.appendChild(overlay);}
+  const sec=CHECKLIST_SECTIONS[checklistSection];
+  const totalSec=CHECKLIST_SECTIONS.length;
+  const isLast=checklistSection===totalSec-1;
+  const pct=Math.round((checklistSection/totalSec)*100);
+  // count how many items unanswered
+  const unanswered=sec.items.filter((_,ii)=>!checklistAnswers[`${checklistSection}_${ii}`]).length;
+  const itemsHtml=sec.items.map((item,ii)=>{
+    const key=`${checklistSection}_${ii}`;
+    const noteKey=`${key}_note`;
+    const ans=checklistAnswers[key]||'';
+    const noteVal=checklistAnswers[noteKey]||'';
+    const showNote=item.noteKey||ans==='no';
+    return`<div class="checklist-item">
+      <div class="checklist-item-left">
+        <div class="checklist-item-q">${h(item.q)}</div>
+        ${item.hint?`<div class="checklist-item-hint">${h(item.hint)}</div>`:''}
+        ${showNote?`<div class="checklist-item-note"><textarea placeholder="${item.noteKey?'Specify…':'Describe the issue…'}" oninput="checklistAnswers['${noteKey}']=this.value">${h(noteVal)}</textarea></div>`:''}
+      </div>
+      <div class="checklist-yn">
+        <button class="cl-yn yes${ans==='yes'?' active':''}" onclick="clSetAns(${checklistSection},${ii},'yes')">✓</button>
+        <button class="cl-yn no${ans==='no'?' active':''}" onclick="clSetAns(${checklistSection},${ii},'no')">✗</button>
+      </div>
+    </div>`;
+  }).join('');
+  overlay.innerHTML=`<div class="checklist-modal">
+    <div class="checklist-progress-bar"><div class="checklist-progress-fill" style="width:${pct}%;"></div></div>
+    <div class="checklist-head">
+      <div class="checklist-sec-label">Section ${checklistSection+1} of ${totalSec}</div>
+      <div class="checklist-sec-title">${sec.icon} ${sec.title}</div>
+      <div class="checklist-sec-count">${sec.items.length} items</div>
+    </div>
+    <div class="checklist-body">${itemsHtml}</div>
+    <div class="checklist-foot">
+      <button class="btn" onclick="${checklistSection>0?'clPrev()':'cancelChecklist()'}">${checklistSection>0?'← Back':'Cancel'}</button>
+      ${unanswered>0
+        ?`<span class="checklist-warn">${unanswered} item${unanswered>1?'s':''} unanswered</span><button class="btn btn-primary" disabled style="opacity:.45;">${isLast?'Submit & Complete ✓':'Next Section →'}</button>`
+        :`<button class="btn btn-primary" onclick="${isLast?'checklistSubmit()':'clNext()'}"> ${isLast?'Submit & Complete ✓':'Next Section →'}</button>`
+      }
+    </div>
+  </div>`;
+}
+function clSetAns(si,ii,val){
+  checklistAnswers[`${si}_${ii}`]=val;
+  renderChecklistSection();
+}
+function clNext(){checklistSection++;renderChecklistSection();}
+function clPrev(){checklistSection--;renderChecklistSection();}
+function cancelChecklist(){document.getElementById('checklist-overlay')?.remove();}
+async function checklistSubmit(){
+  // Build responses text grouped by section
+  const lines=CHECKLIST_SECTIONS.map(sec=>{
+    const si=CHECKLIST_SECTIONS.indexOf(sec);
+    const itemLines=sec.items.map((item,ii)=>{
+      const ans=checklistAnswers[`${si}_${ii}`]||'—';
+      const note=checklistAnswers[`${si}_${ii}_note`]||'';
+      const mark=ans==='yes'?'✓':ans==='no'?'✗':'—';
+      return`  ${mark} ${item.q}${note?` [${note}]`:''}`;
+    }).join('\n');
+    return`${sec.icon} ${sec.title}\n${itemLines}`;
+  }).join('\n\n');
+  const responses=lines;
+  cancelChecklist();
+  try{
+    // 1) Mark job Complete
+    await updatePage(checklistJobId,{Status:wp('select','Complete')});
+    // 2) Record for Ops Manager
+    const key=`complete-${checklistJobId}`;notifTimestamps[key]=Date.now();
+    localStorage.setItem('notif_ts',JSON.stringify(notifTimestamps));
+    // 3) Auto-update property status to "Needs Inspection"
+    const job=_cleanerJobs.find(j=>j.id===checklistJobId);
+    if(job?.property){
+      const prop=st.properties.find(p=>p.name===job.property);
+      if(prop&&prop.propStatus==='Dirty'){
+        await updatePage(prop.id,{'Property Status':wp('select','Needs Inspection')});
+        prop.propStatus='Needs Inspection';
+      }
+    }
+    // 4) Write checklist answers directly onto the cleaning job page
+    await updatePage(checklistJobId,{
+      'Submitted At':wp('date',new Date().toISOString().split('T')[0]),
+      'Responses':wp('text',responses),
+    }).catch(()=>{});
+    // 5) Update local state
+    if(job)job.status='Complete';
+    toast('Job completed ✓');renderCleanerContent();
+  }catch(e){toast('Error completing job: '+(e.message||e));}
+}
+
+function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2500);}
+
+/* ── Change PIN ─────────────────────────────────────────── */
+function openChangePIN(){
+  document.getElementById('modal-overlay').style.display='flex';
+  document.getElementById('modal-box').innerHTML=`
+    <div class="modal-title">🔑 Change PIN</div>
+    <div style="font-size:13px;color:#666;margin-bottom:14px;">Changing PIN for <strong>${h(currentSession?.name||'')}</strong></div>
+    <div class="frow"><label class="flabel">Current PIN</label><input class="finput" type="password" inputmode="numeric" id="f-old-pin" maxlength="8" placeholder="Current PIN"></div>
+    <div class="frow"><label class="flabel">New PIN</label><input class="finput" type="password" inputmode="numeric" id="f-new-pin" maxlength="8" placeholder="New PIN (4–8 digits)"></div>
+    <div class="frow"><label class="flabel">Confirm new PIN</label><input class="finput" type="password" inputmode="numeric" id="f-new-pin2" maxlength="8" placeholder="Repeat new PIN"></div>
+    <div id="f-pin-err" style="color:#dc2626;font-size:12px;min-height:16px;margin-bottom:6px;"></div>
+    <div class="mactions"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-primary" id="submit-btn" onclick="submitChangePIN()">Save PIN</button></div>`;
+}
+async function submitChangePIN(){
+  const oldPin=document.getElementById('f-old-pin')?.value;
+  const newPin=document.getElementById('f-new-pin')?.value;
+  const newPin2=document.getElementById('f-new-pin2')?.value;
+  const errEl=document.getElementById('f-pin-err');
+  if(oldPin!==currentSession?.pin){errEl.textContent='Current PIN is incorrect';return;}
+  if(!newPin||newPin.length<4){errEl.textContent='New PIN must be at least 4 digits';return;}
+  if(newPin!==newPin2){errEl.textContent='PINs do not match';return;}
+  const btn=document.getElementById('submit-btn');btn.textContent='Saving…';btn.disabled=true;
+  try{
+    await updatePage(currentSession.id,{PIN:wp('text',newPin)});
+    currentSession.pin=newPin;
+    saveSession(currentSession);
+    // Update in loginUsers array
+    const lu=loginUsers.find(u=>u.id===currentSession.id);
+    if(lu)lu.pin=newPin;
+    closeModal();toast('PIN changed ✓');
+  }catch(e){errEl.textContent='Error: '+(e.message||e);btn.textContent='Save PIN';btn.disabled=false;}
+}
+
+/* ── Translations ───────────────────────────────────────── */
+const HE={
+  'Property Ops':'ניהול נכסים','Workspace':'סביבת עבודה',
+  'Tasks':'משימות','Work Orders':'הזמנות עבודה','Cleaning':'ניקיון',
+  'My Dashboard':'לוח שלי','Dashboard':'לוח שלי','My Jobs':'המשימות שלי',
+  'Sign out':'יציאה','Sign in':'כניסה','Sign in to continue':'כניסה להמשך',
+  'Username':'שם משתמש','PIN':'קוד PIN',
+  'Please enter your username':'נא להזין שם משתמש',
+  'Please enter your PIN':'נא להזין קוד PIN',
+  'Username not found':'שם משתמש לא נמצא',
+  'No PIN set for your account — ask an admin to add one in Notion':'לא הוגדר PIN — בקש מהמנהל להוסיף',
+  '↻ Refresh':'↻ רענן','+ New':'+ חדש',
+  '+ New Task':'+ משימה חדשה','+ New Work Order':'+ הזמנת עבודה',
+  '+ New Cleaning Job':'+ עבודת ניקיון',
+  'All statuses':'כל הסטטוסים','All priorities':'כל העדיפויות',
+  'All properties':'כל הנכסים','All cleaners':'כל המנקים',
+  'All payment status':'כל סטטוסי תשלום',
+  'All':'הכל','✓ Paid':'✓ שולם','Unpaid':'לא שולם','Paid only':'שולם בלבד','Unpaid only':'לא שולם בלבד',
+  'No tasks yet':'אין משימות עדיין','No work orders yet':'אין הזמנות עבודה',
+  'No cleaning jobs yet':'אין עבודות ניקיון',
+  'Open':'פתוח','In Progress':'בתהליך','Blocked':'חסום','Done':'הושלם',
+  'Draft':'טיוטה','Active':'פעיל','Complete':'הושלם','Accepted':'התקבל',
+  'On Hold':'בהמתנה','Cancelled':'בוטל','Scheduled':'מתוזמן',
+  'High':'גבוה','Medium':'בינוני','Low':'נמוך',
+  'Regular Turnover':'מחזור רגיל','Deep Clean':'ניקיון עמוק','Move-in / Move-out':'כניסה / יציאה','Other':'אחר',
+  "Today's jobs":"משימות היום",'Next 7 days':'7 ימים הבאים',
+  'All clear for today 🎉':'הכל נקי להיום 🎉',
+  'Connecting to Guesty…':'מתחבר ל-Guesty…','Guesty unavailable':'Guesty לא זמין',
+  'Board':'לוח','List':'רשימה',
+  'Notifications':'התראות','All caught up!':'הכל עדכני!','Archive all':'ארכיון הכל',
+  'Change PIN':'שנה קוד','Current PIN':'קוד נוכחי','New PIN':'קוד חדש',
+  'Confirm new PIN':'אשר קוד חדש','Save PIN':'שמור קוד',
+  'Assigned to me':'מוקצה לי','All Tasks':'כל המשימות',
+  'Add a comment…':'הוסף תגובה…','Send':'שלח',
+  'No comments yet':'אין תגובות עדיין','Comments unavailable':'תגובות לא זמינות',
+  'Loading…':'טוען…','Loading notifications…':'טוען התראות…',
+  'Open in Notion ↗':'פתח ב-Notion ↗',
+  'Cleaning Jobs':'עבודות ניקיון','Payment Dashboard':'לוח תשלומים',
+  'Submissions':'הגשות','Property Status':'סטטוס נכסים','Guesty Calendar':'לוח שנה Guesty',
+  'Dirty':'מלוכלך','Unsure':'לא ברור','Needs Inspection':'דורש בדיקה','Clean':'נקי',
+  'Details':'פרטים','Payments':'תשלומים','Cleaner':'מנקה','Property':'נכס',
+  'Notes':'הערות','Status':'סטטוס','Comments':'תגובות',
+  'Accept':'קבל','Mark done':'סמן כבוצע','Undo':'בטל',
+  'My Earnings':'ההכנסות שלי',
+  'Outstanding':'חוב','Total Earned':'סה"כ הרוויח',
+  'Unpaid jobs':'עבודות שלא שולמו','Cleaners owed':'מנקים לתשלום','View':'הצג',
+  'All cleaners paid up!':'כל המנקים שולמו!',
+  'Upcoming Jobs':'עבודות קרובות','Upcoming':'קרוב',
+  'Earned':'הרוויח','Paid':'שולם',
+  'No date':'ללא תאריך','✓ Done':'✓ בוצע',
+  'No cleaning jobs found.':'לא נמצאו עבודות ניקיון.',
+  'Work Orders':'הזמנות עבודה',
+  'New Cleaning Job':'עבודת ניקיון חדשה','Create Cleaning Job':'צור עבודת ניקיון',
+  'Link to Guesty reservation':'קישור לחיוב Guesty',
+  'optional — auto-fills property & deadline':'אופציונלי — ממלא נכס ותאריך אוטומטית',
+  'Job name':'שם עבודה','Type of clean':'סוג ניקיון',
+  'Agreed rate ($)':'תעריף מוסכם ($)','Deadline':'תאריך יעד',
+  'select':'בחר','Add new cleaner…':'הוסף מנקה חדש…',
+  'Access codes, special instructions…':'קודי גישה, הוראות מיוחדות…',
+  'Add Payment':'הוסף תשלום','Save Payment':'שמור תשלום',
+  'Payment name *':'שם תשלום *','Amount paid ($) *':'סכום ששולם ($) *',
+  'Payment date':'תאריך תשלום','Receipt image URL':'קישור לקבלה',
+  'Add New Cleaner':'הוסף מנקה חדש','Add Cleaner':'הוסף מנקה',
+  'Name *':'שם *','Phone':'טלפון','Default rate ($/job)':'תעריף ברירת מחדל',
+  'Email':'אימייל','Full name':'שם מלא',
+  'Nothing assigned to you right now':'אין כלום מוקצה לך כרגע',
+  'No open tasks or jobs':'אין משימות פתוחות',
+  'No active work orders':'אין הזמנות עבודה פעילות',
+  'Incorrect PIN — try again':'קוד PIN שגוי — נסה שוב',
+  'Cancel':'ביטול','Back':'חזור','Next Section →':'קטע הבא →','Submit & Complete ✓':'שלח וסיים ✓',
+  'Section':'קטע','of':'מתוך','items':'פריטים','item unanswered':'פריט ללא תשובה','items unanswered':'פריטים ללא תשובה',
+  'View checklist answers':'הצג תשובות רשימת תיוג',
+  'All issues':'כל הבעיות','All clear':'הכל תקין',
+  'No checklist submissions yet.':'אין הגשות עדיין.',
+  'Sign in':'כניסה',
+  '🏠 Property Status':'🏠 סטטוס נכסים','📅 Guesty Calendar':'📅 לוח שנה Guesty',
+  'Task assigned to you':'משימה הוקצתה לך',
+  'Cleaning job accepted':'עבודת ניקיון התקבלה',
+  'Cleaning job completed':'עבודת ניקיון הושלמה',
+  'Checklist submitted':'רשימת תיוג הוגשה',
+};
+const PH={
+  'Property Ops':'Property Ops','Workspace':'Workspace',
+  'Tasks':'Mga Gawain','Work Orders':'Mga Work Order','Cleaning':'Paglilinis',
+  'My Dashboard':'Aking Dashboard','Dashboard':'Dashboard','My Jobs':'Aking mga Trabaho',
+  'Sign out':'Mag-sign out','Sign in':'Mag-sign in','Sign in to continue':'Mag-sign in para magpatuloy',
+  'Username':'Username','PIN':'PIN',
+  'Please enter your username':'Mangyaring ilagay ang iyong username',
+  'Please enter your PIN':'Mangyaring ilagay ang iyong PIN',
+  'Username not found':'Hindi nahanap ang username',
+  'No PIN set for your account — ask an admin to add one in Notion':'Walang PIN — hilingin sa admin na magdagdag',
+  '↻ Refresh':'↻ I-refresh','+ New':'+ Bago',
+  '+ New Task':'+ Bagong Gawain','+ New Work Order':'+ Bagong Work Order',
+  '+ New Cleaning Job':'+ Bagong Trabaho sa Paglilinis',
+  'All statuses':'Lahat ng status','All priorities':'Lahat ng priyoridad',
+  'All properties':'Lahat ng ari-arian','All cleaners':'Lahat ng tagalinis',
+  'All payment status':'Lahat ng status ng bayad',
+  'All':'Lahat','✓ Paid':'✓ Bayad na','Unpaid':'Hindi pa bayad','Paid only':'Bayad na lang','Unpaid only':'Hindi pa bayad lang',
+  'No tasks yet':'Wala pang gawain','No work orders yet':'Wala pang work order',
+  'No cleaning jobs yet':'Wala pang trabaho sa paglilinis',
+  'Open':'Bukas','In Progress':'Isinasagawa','Blocked':'Naharang','Done':'Tapos na',
+  'Draft':'Draft','Active':'Aktibo','Complete':'Kumpleto','Accepted':'Tinanggap',
+  'On Hold':'Nakahold','Cancelled':'Kinansela','Scheduled':'Nakatakda',
+  'High':'Mataas','Medium':'Katamtaman','Low':'Mababa',
+  'Regular Turnover':'Regular na Turnover','Deep Clean':'Malalim na Paglilinis','Move-in / Move-out':'Paglipat','Other':'Iba pa',
+  "Today's jobs":'Mga trabaho ngayon','Next 7 days':'Susunod na 7 araw',
+  'All clear for today 🎉':'Lahat ay maayos ngayon 🎉',
+  'Connecting to Guesty…':'Kumukonekta sa Guesty…','Guesty unavailable':'Hindi available ang Guesty',
+  'Board':'Board','List':'Listahan',
+  'Notifications':'Mga Abiso','All caught up!':'Naka-update na!','Archive all':'I-archive lahat',
+  'Change PIN':'Palitan ang PIN','Current PIN':'Kasalukuyang PIN','New PIN':'Bagong PIN',
+  'Confirm new PIN':'Kumpirmahin ang bagong PIN','Save PIN':'I-save ang PIN',
+  'Assigned to me':'Itinalaga sa akin','All Tasks':'Lahat ng Gawain',
+  'Add a comment…':'Magdagdag ng komento…','Send':'Ipadala',
+  'No comments yet':'Wala pang komento','Comments unavailable':'Hindi available ang mga komento',
+  'Loading…':'Naglo-load…','Loading notifications…':'Naglo-load ng mga abiso…',
+  'Open in Notion ↗':'Buksan sa Notion ↗',
+  'Cleaning Jobs':'Mga Trabaho sa Paglilinis','Payment Dashboard':'Dashboard ng Bayad',
+  'Submissions':'Mga Isinumite','Property Status':'Katayuan ng Ari-arian','Guesty Calendar':'Kalendaryo ng Guesty',
+  'Dirty':'Marumi','Unsure':'Hindi tiyak','Needs Inspection':'Kailangan ng Inspeksyon','Clean':'Malinis',
+  'Details':'Mga Detalye','Payments':'Mga Bayad','Cleaner':'Tagalinis','Property':'Ari-arian',
+  'Notes':'Mga Tala','Status':'Katayuan','Comments':'Mga Komento',
+  'Accept':'Tanggapin','Mark done':'Markahan bilang tapos','Undo':'I-undo',
+  'My Earnings':'Aking Kita',
+  'Outstanding':'Hindi pa nabayaran','Total Earned':'Kabuuang Kinita',
+  'Unpaid jobs':'Mga trabahong hindi pa bayad','Cleaners owed':'Mga tagalinis na may utang','View':'Tingnan',
+  'All cleaners paid up!':'Lahat ng tagalinis ay nabayaran na!',
+  'Upcoming Jobs':'Mga Paparating na Trabaho','Upcoming':'Paparating',
+  'Earned':'Kinita','Paid':'Bayad na',
+  'No date':'Walang petsa','✓ Done':'✓ Tapos na',
+  'No cleaning jobs found.':'Walang nahanap na trabaho sa paglilinis.',
+  'Work Orders':'Mga Work Order',
+  'New Cleaning Job':'Bagong Trabaho sa Paglilinis','Create Cleaning Job':'Lumikha ng Trabaho sa Paglilinis',
+  'Link to Guesty reservation':'I-link sa Guesty reservation',
+  'optional — auto-fills property & deadline':'opsyonal — awtomatikong pinupuno ang ari-arian at deadline',
+  'Job name':'Pangalan ng trabaho','Type of clean':'Uri ng paglilinis',
+  'Agreed rate ($)':'Napagkasunduang rate ($)','Deadline':'Deadline',
+  'select':'pumili','Add new cleaner…':'Magdagdag ng bagong tagalinis…',
+  'Access codes, special instructions…':'Mga code ng access, espesyal na tagubilin…',
+  'Add Payment':'Magdagdag ng Bayad','Save Payment':'I-save ang Bayad',
+  'Payment name *':'Pangalan ng bayad *','Amount paid ($) *':'Halagang binayad ($) *',
+  'Payment date':'Petsa ng bayad','Receipt image URL':'URL ng resibo',
+  'Add New Cleaner':'Magdagdag ng Bagong Tagalinis','Add Cleaner':'Magdagdag ng Tagalinis',
+  'Name *':'Pangalan *','Phone':'Telepono','Default rate ($/job)':'Default na rate',
+  'Email':'Email','Full name':'Buong pangalan',
+  'Nothing assigned to you right now':'Wala pang itinalaga sa iyo ngayon',
+  'No open tasks or jobs':'Walang bukas na gawain o trabaho',
+  'No active work orders':'Walang aktibong work order',
+  'Incorrect PIN — try again':'Maling PIN — subukang muli',
+  'Cancel':'Kanselahin','Back':'Bumalik','Next Section →':'Susunod na Seksyon →','Submit & Complete ✓':'Isumite at Tapusin ✓',
+  'Section':'Seksyon','of':'ng','items':'mga aytem','item unanswered':'aytem walang sagot','items unanswered':'mga aytem walang sagot',
+  'View checklist answers':'Tingnan ang mga sagot sa checklist',
+  'All issues':'Lahat ng isyu','All clear':'Lahat ay maayos',
+  'No checklist submissions yet.':'Wala pang mga isinumite.',
+  '🏠 Property Status':'🏠 Katayuan ng Ari-arian','📅 Guesty Calendar':'📅 Kalendaryo ng Guesty',
+  'Task assigned to you':'Gawain na itinalaga sa iyo',
+  'Cleaning job accepted':'Trabahong paglilinis ay tinanggap',
+  'Cleaning job completed':'Trabahong paglilinis ay natapos',
+  'Checklist submitted':'Checklist ay naisumite',
+};
+
+function t(k){
+  const lang=document.documentElement.lang;
+  if(lang==='he')return HE[k]||k;
+  if(lang==='fil')return PH[k]||k;
+  return k;
+}
+function applyTranslations(){
+  const lang=document.documentElement.lang;
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const k=el.dataset.i18n;el.textContent=t(k);
+  });
+  // Update checkmarks in lang picker
+  ['en','he','fil'].forEach(l=>{
+    const el=document.getElementById('lc-'+l);
+    if(el)el.textContent=lang===l?' ✓':'';
+  });
+  // Highlight active lang option
+  document.querySelectorAll('.lang-opt').forEach(b=>{
+    const onclick=b.getAttribute('onclick')||'';
+    const match=onclick.match(/setLang\('(\w+)'\)/);
+    if(match)b.classList.toggle('active-lang',match[1]===lang);
+  });
+  try{
+    const titles={tasks:t('Tasks'),workorders:t('Work Orders'),cleaning:t('Cleaning'),mydash:t('My Dashboard'),notifications:t('Notifications')};
+    const tb=document.getElementById('topbar-title');if(tb&&st.section)tb.textContent=titles[st.section]||st.section;
+    const newLabel={tasks:t('+ New Task'),workorders:t('+ New Work Order'),cleaning:t('+ New Cleaning Job')}[st.section]||t('+ New');
+    const nb=document.getElementById('new-btn');if(nb)nb.textContent=newLabel;
+    const nbm=document.getElementById('new-btn-m');if(nbm)nbm.textContent=newLabel;
+    const cp=document.getElementById('dp-comment-input');if(cp)cp.placeholder=t('Add a comment…');
+  }catch{}
+  try{renderSection();}catch(e){}
+}
+function openProfileMenu(btn){
+  const popup=document.getElementById('profile-popup');
+  if(!popup)return;
+  if(popup.style.display==='block'){popup.style.display='none';return;}
+  popup.style.display='block';
+  const rect=btn.getBoundingClientRect();
+  const ph=popup.offsetHeight||180;
+  const top=rect.bottom+6;
+  const left=Math.max(6,rect.right-220);
+  popup.style.top=top+'px';popup.style.left=left+'px';
+  setTimeout(()=>{
+    function outside(e){if(!popup.contains(e.target)&&e.target!==btn){popup.style.display='none';document.removeEventListener('click',outside);}}
+    document.addEventListener('click',outside);
+  },10);
+}
+let _langPickerAnchor=null;
+function openLangPicker(btn){
+  const popup=document.getElementById('lang-picker-popup');
+  if(!popup)return;
+  if(popup.style.display==='block'){popup.style.display='none';_langPickerAnchor=null;return;}
+  const rect=btn.getBoundingClientRect();
+  popup.style.display='block';
+  // Position: prefer above the button, align to right edge
+  const ph=popup.offsetHeight||160;
+  const top=rect.top-ph-6<0?rect.bottom+6:rect.top-ph-6;
+  popup.style.top=top+'px';
+  popup.style.left=Math.max(6,rect.right-180)+'px';
+  _langPickerAnchor=btn;
+  applyTranslations();
+  // Close on outside click
+  setTimeout(()=>{
+    function outside(e){if(!popup.contains(e.target)&&e.target!==btn){popup.style.display='none';document.removeEventListener('click',outside);}}
+    document.addEventListener('click',outside);
+  },10);
+}
+function setLang(lang){
+  const html=document.documentElement;
+  const dir=lang==='he'?'rtl':'ltr';
+  html.lang=lang;html.dir=dir;
+  localStorage.setItem('ops_lang',lang);localStorage.setItem('ops_dir',dir);
+  document.getElementById('lang-picker-popup').style.display='none';
+  applyTranslations();
+}
+function initLang(){
+  const savedLang=localStorage.getItem('ops_lang')||'en';
+  const savedDir=localStorage.getItem('ops_dir')||'ltr';
+  document.documentElement.lang=savedLang;
+  document.documentElement.dir=savedDir;
+  applyTranslations();
+}
+
+/* ── Mobile detection (JS-driven, overrides CSS) ────────── */
+function applyMobile(){
+  const isMobile=/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)||window.innerWidth<=700;
+  const html=document.documentElement;
+  html.classList.toggle('mobile',isMobile);
+  const sidebar=document.querySelector('.sidebar');
+  const mobileNav=document.getElementById('mobile-nav');
+  const body=document.body;
+  if(isMobile){
+    if(sidebar)sidebar.style.setProperty('display','none','important');
+    if(mobileNav)mobileNav.style.setProperty('display','flex','important');
+    body.style.overflow='auto';
+  }else{
+    if(sidebar)sidebar.style.removeProperty('display');
+    if(mobileNav)mobileNav.style.setProperty('display','none','important');
+    body.style.overflow='';
+  }
+}
+window.addEventListener('resize',()=>{applyMobile();try{setSection(st.section);}catch(e){}});
+
+/* ── Init ───────────────────────────────────────────────── */
+applyMobile();
+initLang();
+loadSession();
+if(currentSession){bootApp();}else{showLoginScreen();}
+// Re-apply after app boots (DOM fully populated)
+setTimeout(()=>{applyMobile();applyTranslations();},100);
+</script>
+<div id="profile-popup">
+  <div class="profile-popup-header">
+    <div class="profile-popup-name" id="pp-name"></div>
+    <div class="profile-popup-role" id="pp-role"></div>
+  </div>
+  <button class="profile-popup-btn" onclick="document.getElementById('profile-popup').style.display='none';openChangePIN()">🔑 <span data-i18n="Change PIN">Change PIN</span></button>
+  <button class="profile-popup-btn danger" onclick="document.getElementById('profile-popup').style.display='none';logout()">🚪 <span data-i18n="Sign out">Sign out</span></button>
+</div>
+<div id="lang-picker-popup">
+  <button class="lang-opt" onclick="setLang('en')"><span>🇺🇸</span> English<span class="lang-check" id="lc-en"></span></button>
+  <button class="lang-opt" onclick="setLang('he')"><span>🇮🇱</span> עברית<span class="lang-check" id="lc-he"></span></button>
+  <button class="lang-opt" onclick="setLang('fil')"><span>🇵🇭</span> Filipino<span class="lang-check" id="lc-fil"></span></button>
+</div>
+</body>
+</html>
